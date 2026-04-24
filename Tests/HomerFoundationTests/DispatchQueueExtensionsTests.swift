@@ -15,4 +15,59 @@ struct DispatchQueueExtensionsTests {
         let result = await Task.detached { DispatchQueue.isMainQueue }.value
         #expect(!result)
     }
+
+    @Test("isCurrent matches the queue we are currently dispatched on")
+    func isCurrentMatches() async {
+        let queue = DispatchQueue(label: "com.homer.tests.isCurrent")
+        let result = await withCheckedContinuation { continuation in
+            queue.async {
+                continuation.resume(returning: DispatchQueue.isCurrent(queue))
+            }
+        }
+        #expect(result)
+    }
+
+    @Test("isCurrent returns false for an unrelated queue")
+    func isCurrentMismatch() async {
+        let queueA = DispatchQueue(label: "com.homer.tests.A")
+        let queueB = DispatchQueue(label: "com.homer.tests.B")
+        let result = await withCheckedContinuation { continuation in
+            queueA.async {
+                continuation.resume(returning: DispatchQueue.isCurrent(queueB))
+            }
+        }
+        #expect(!result)
+    }
+
+    @Test("safeAsync executes synchronously when already on main")
+    @MainActor
+    func safeAsyncSyncOnMain() async {
+        await confirmation { confirm in
+            DispatchQueue.main.safeAsync { confirm() }
+        }
+    }
+
+    @Test("safeAsync from background dispatches to target queue")
+    func safeAsyncFromBackground() async {
+        await confirmation { confirm in
+            await Task.detached {
+                DispatchQueue.main.safeAsync { confirm() }
+            }.value
+            try? await Task.sleep(for: .milliseconds(50))
+        }
+    }
+
+    @Test("asyncAfter(delay:) eventually runs the work")
+    func asyncAfterDelay() async {
+        await confirmation { confirm in
+            DispatchQueue.global().asyncAfter(delay: 0.01) { confirm() }
+            try? await Task.sleep(for: .milliseconds(100))
+        }
+    }
+
+    @Test("log does not crash and is safe to call from any queue")
+    func logSmoke() async {
+        DispatchQueue.log("test-action")
+        await Task.detached { DispatchQueue.log("from-detached") }.value
+    }
 }
