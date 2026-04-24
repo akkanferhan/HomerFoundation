@@ -25,6 +25,14 @@ struct StringExtensionsTests {
         #expect(!"@bar.com".isValidEmail)
     }
 
+    @Test("isValidEmail rejects strings that merely contain a valid email substring")
+    func isValidEmailRejectsSubstring() {
+        #expect(!"hello foo@bar.com world".isValidEmail)
+        #expect(!"foo@bar.com extra".isValidEmail)
+        #expect(!"prefix foo@bar.com".isValidEmail)
+        #expect(!"foo@bar.com\nbaz".isValidEmail)
+    }
+
     @Test("parsedWords and wordCount split on spaces")
     func words() {
         #expect("hello world foo".parsedWords == ["hello", "world", "foo"])
