@@ -27,22 +27,23 @@ public final class LocationService: NSObject {
         manager.requestAlwaysAuthorization()
     }
 
-    public func setDesiredAccuracy(_ accuracy: LocationAccuracy) {
-        manager.desiredAccuracy = accuracy.clAccuracy
-    }
-
     public func distance(from coordinate: Coordinate) -> CLLocationDistance? {
         lastLocation?.distance(to: coordinate)
     }
 
-    public func liveUpdates() -> AsyncThrowingStream<Coordinate, Error> {
+    public func liveUpdates(
+        configuration: CLLocationUpdate.LiveConfiguration = .default
+    ) -> AsyncThrowingStream<Coordinate, Error> {
         AsyncThrowingStream { continuation in
-            let task = Task {
+            let task = Task { [weak self] in
                 do {
-                    for try await update in CLLocationUpdate.liveUpdates() {
-                        if let location = update.location {
-                            continuation.yield(Coordinate(location.coordinate))
-                        }
+                    for try await update in CLLocationUpdate.liveUpdates(configuration) {
+                        guard let location = update.location else { continue }
+                        let coord = Coordinate(location.coordinate)
+                        let accuracy = LocationAccuracy(location.horizontalAccuracy)
+                        self?.lastLocation = coord
+                        self?.lastAccuracy = accuracy
+                        continuation.yield(coord)
                     }
                     continuation.finish()
                 } catch {
@@ -59,16 +60,6 @@ extension LocationService: CLLocationManagerDelegate {
         let status = LocationAuthorization(manager.authorizationStatus)
         Task { @MainActor [weak self] in
             self?.authorization = status
-        }
-    }
-
-    public nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let last = locations.last else { return }
-        let coord = Coordinate(last.coordinate)
-        let accuracy = LocationAccuracy(last.horizontalAccuracy)
-        Task { @MainActor [weak self] in
-            self?.lastLocation = coord
-            self?.lastAccuracy = accuracy
         }
     }
 }

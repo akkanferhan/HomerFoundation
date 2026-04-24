@@ -22,13 +22,24 @@ struct LocationServiceTests {
         #expect(valid.contains(service.authorization))
     }
 
-    @Test("setDesiredAccuracy and authorization requests do not crash")
+    @Test("Authorization requests do not crash")
     func smokeAPI() {
         let service = LocationService()
-        service.setDesiredAccuracy(.best)
-        service.setDesiredAccuracy(.kilometer)
         service.requestWhenInUseAuthorization()
         service.requestAlwaysAuthorization()
+    }
+
+    @Test("liveUpdates returns a stream that can be cancelled immediately")
+    func liveUpdatesCancellable() async {
+        let service = LocationService()
+        let stream = service.liveUpdates()
+        let task = Task {
+            for try await _ in stream {
+                break
+            }
+        }
+        task.cancel()
+        _ = await task.result
     }
 
     @Test("distance returns nil when no last location")
