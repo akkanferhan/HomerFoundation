@@ -20,8 +20,8 @@ public extension Optional where Wrapped: AdditiveArithmetic {
 }
 
 public extension Optional where Wrapped == Bool {
-    /// Returns the wrapped value or `false` when `nil`.
+    /// Returns the wrapped value or `false` when `nil` — covers the common
+    /// "settings flag defaults to off" case. Use `?? true` directly for the
+    /// rarer reverse default.
     var orFalse: Bool { self ?? false }
-    /// Returns the wrapped value or `true` when `nil`.
-    var orTrue: Bool { self ?? true }
 }

@@ -51,14 +51,11 @@ struct OptionalExtensionsTests {
         #expect(nilCGFloat.orZero == 0)
     }
 
-    @Test("orFalse / orTrue on Bool optionals")
+    @Test("orFalse on Bool optionals")
     func orBool() {
         let nilBool: Bool? = nil
         let trueBool: Bool? = true
-        let falseBool: Bool? = false
         #expect(nilBool.orFalse == false)
-        #expect(nilBool.orTrue == true)
         #expect(trueBool.orFalse == true)
-        #expect(falseBool.orTrue == false)
     }
 }
