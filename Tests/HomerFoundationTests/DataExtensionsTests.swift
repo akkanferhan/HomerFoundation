@@ -15,7 +15,7 @@ struct DataExtensionsTests {
     @Test("asJSONDictionary throws notADictionary for JSON arrays")
     func arrayThrows() {
         let data = Data("[1,2,3]".utf8)
-        #expect(throws: Data.JSONError.notADictionary) {
+        #expect(throws: JSONError.notADictionary) {
             _ = try data.asJSONDictionary()
         }
     }
