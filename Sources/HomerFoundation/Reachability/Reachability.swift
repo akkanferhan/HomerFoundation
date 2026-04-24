@@ -62,4 +62,40 @@ public final class Reachability {
         if wired { return .wired }
         return .other
     }
+
+    /// Returns the device's current connection type by briefly observing a fresh
+    /// `NWPathMonitor`. Use this for one-shot checks; for a long-lived observable
+    /// state, create a `Reachability` instance and call `start()`.
+    public nonisolated static func currentStatus() async -> ConnectionType {
+        await withCheckedContinuation { continuation in
+            let monitor = NWPathMonitor()
+            let queue = DispatchQueue(label: "com.homer.foundation.reachability.oneshot")
+            let once = OnceFlag()
+            monitor.pathUpdateHandler = { path in
+                guard once.fire() else { return }
+                let type = connectionType(
+                    isSatisfied: path.status == .satisfied,
+                    wifi: path.usesInterfaceType(.wifi),
+                    cellular: path.usesInterfaceType(.cellular),
+                    wired: path.usesInterfaceType(.wiredEthernet)
+                )
+                monitor.cancel()
+                continuation.resume(returning: type)
+            }
+            monitor.start(queue: queue)
+        }
+    }
+}
+
+private final class OnceFlag: @unchecked Sendable {
+    private let lock = NSLock()
+    private var triggered = false
+
+    func fire() -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        guard !triggered else { return false }
+        triggered = true
+        return true
+    }
 }

@@ -46,4 +46,13 @@ struct ReachabilityTests {
     func other() {
         #expect(Reachability.connectionType(isSatisfied: true) == .other)
     }
+
+    @Test("currentStatus returns one of the known cases")
+    func currentStatusReturnsKnownCase() async {
+        let status = await Reachability.currentStatus()
+        let known: [Reachability.ConnectionType] = [
+            .wifi, .cellular, .wired, .other, .unavailable
+        ]
+        #expect(known.contains(status))
+    }
 }
