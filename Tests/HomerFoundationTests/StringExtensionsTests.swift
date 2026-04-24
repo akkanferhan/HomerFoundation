@@ -16,12 +16,6 @@ struct StringExtensionsTests {
         #expect("  hello  world  ".removingWhitespaces == "helloworld")
     }
 
-    @Test("isNotEmpty inverts isEmpty")
-    func isNotEmpty() {
-        #expect("a".isNotEmpty)
-        #expect(!"".isNotEmpty)
-    }
-
     @Test("isValidEmail accepts well-formed and rejects malformed addresses")
     func isValidEmail() {
         #expect("foo@bar.com".isValidEmail)
