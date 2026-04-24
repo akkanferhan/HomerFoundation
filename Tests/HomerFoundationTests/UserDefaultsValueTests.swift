@@ -63,4 +63,23 @@ struct UserDefaultsValueTests {
         #expect(wrapperA.wrappedValue == "changed")
         #expect(wrapperB.wrappedValue == "b")
     }
+
+    @Test("Plist-compatible types persist; non-plist types must use the Codable variant")
+    func plistCompatibility() {
+        #expect(PropertyListSerialization.propertyList("string", isValidFor: .binary))
+        #expect(PropertyListSerialization.propertyList(42, isValidFor: .binary))
+        #expect(PropertyListSerialization.propertyList(Date(), isValidFor: .binary))
+        #expect(PropertyListSerialization.propertyList(Data(), isValidFor: .binary))
+        #expect(!PropertyListSerialization.propertyList(URL(string: "https://example.com")!, isValidFor: .binary))
+        #expect(!PropertyListSerialization.propertyList(UUID(), isValidFor: .binary))
+    }
+
+    @Test("Date round-trips through UserDefaultsValue")
+    func dateRoundTrip() {
+        let store = makeStore()
+        let now = Date()
+        var wrapper = UserDefaultsValue(wrappedValue: Date(timeIntervalSince1970: 0), key: "now", store: store)
+        wrapper.wrappedValue = now
+        #expect(abs(wrapper.wrappedValue.timeIntervalSince(now)) < 0.001)
+    }
 }
