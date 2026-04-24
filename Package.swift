@@ -4,7 +4,8 @@ import PackageDescription
 let package = Package(
     name: "HomerFoundation",
     platforms: [
-        .iOS(.v18)
+        .iOS(.v18),
+        .macOS(.v14)
     ],
     products: [
         .library(
