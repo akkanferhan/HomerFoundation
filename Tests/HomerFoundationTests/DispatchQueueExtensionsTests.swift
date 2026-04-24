@@ -70,4 +70,37 @@ struct DispatchQueueExtensionsTests {
         DispatchQueue.log("test-action")
         await Task.detached { DispatchQueue.log("from-detached") }.value
     }
+
+    @Test("debounce fires action only once for a burst of calls")
+    func debounceCollapsesBurst() async {
+        let counter = DebounceCounter()
+        let debounced = DispatchQueue.global().debounce(delay: 0.05) {
+            Task { await counter.increment() }
+        }
+        for _ in 0..<5 {
+            debounced()
+        }
+        try? await Task.sleep(for: .milliseconds(250))
+        let count = await counter.value
+        #expect(count == 1)
+    }
+
+    @Test("debounce fires once per spaced-out call")
+    func debounceFiresEachSpacedCall() async {
+        let counter = DebounceCounter()
+        let debounced = DispatchQueue.global().debounce(delay: 0.02) {
+            Task { await counter.increment() }
+        }
+        debounced()
+        try? await Task.sleep(for: .milliseconds(80))
+        debounced()
+        try? await Task.sleep(for: .milliseconds(80))
+        let count = await counter.value
+        #expect(count == 2)
+    }
+}
+
+private actor DebounceCounter {
+    private(set) var value: Int = 0
+    func increment() { value += 1 }
 }

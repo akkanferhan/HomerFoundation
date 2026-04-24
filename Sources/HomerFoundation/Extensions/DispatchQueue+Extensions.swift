@@ -43,4 +43,37 @@ public extension DispatchQueue {
         let queueLabel = String(validatingCString: __dispatch_queue_get_label(nil)) ?? "<unknown>"
         Log.debug("\(action) | queue: \(queueLabel) | thread: \(Thread.current)")
     }
+
+    func debounce(
+        delay: TimeInterval,
+        action: @escaping @Sendable () -> Void
+    ) -> @Sendable () -> Void {
+        let state = DebounceState()
+        return { [self] in
+            let token = state.bumpToken()
+            asyncAfter(delay: delay) {
+                if state.matches(token: token) {
+                    action()
+                }
+            }
+        }
+    }
+}
+
+private final class DebounceState: @unchecked Sendable {
+    private let lock = NSLock()
+    private var token: Int = 0
+
+    func bumpToken() -> Int {
+        lock.lock()
+        defer { lock.unlock() }
+        token += 1
+        return token
+    }
+
+    func matches(token: Int) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return self.token == token
+    }
 }
