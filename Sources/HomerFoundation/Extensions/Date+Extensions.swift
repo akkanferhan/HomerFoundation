@@ -12,11 +12,4 @@ public extension Date {
         formatter.timeZone = timeZone
         return formatter.string(from: self)
     }
-
-    func convertToLocalTime(fromTimeZone abbreviation: String = "UTC") -> Date? {
-        guard let timeZone = TimeZone(abbreviation: abbreviation) else { return nil }
-        let targetOffset = TimeInterval(timeZone.secondsFromGMT(for: self))
-        let localOffset = TimeInterval(TimeZone.autoupdatingCurrent.secondsFromGMT(for: self))
-        return addingTimeInterval(targetOffset - localOffset)
-    }
 }

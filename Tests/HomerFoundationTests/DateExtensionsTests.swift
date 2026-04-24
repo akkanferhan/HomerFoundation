@@ -19,15 +19,4 @@ struct DateExtensionsTests {
         #expect(date.string(withFormat: "HH:mm:ss", locale: posix, timeZone: utc) == "00:00:00")
     }
 
-    @Test("convertToLocalTime returns nil for unknown abbreviation")
-    func convertUnknownAbbreviation() {
-        let date = Date()
-        #expect(date.convertToLocalTime(fromTimeZone: "NOT_A_ZONE") == nil)
-    }
-
-    @Test("convertToLocalTime returns a Date for valid abbreviation")
-    func convertValidAbbreviation() {
-        let date = Date(timeIntervalSince1970: 0)
-        #expect(date.convertToLocalTime(fromTimeZone: "UTC") != nil)
-    }
 }
