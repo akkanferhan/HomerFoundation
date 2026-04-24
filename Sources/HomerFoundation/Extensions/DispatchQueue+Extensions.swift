@@ -7,10 +7,15 @@ public extension DispatchQueue {
         return key
     }()
 
+    /// `true` when called from code currently dispatched on the main queue.
+    /// Implemented via a one-time `DispatchSpecificKey` marker.
     static var isMainQueue: Bool {
         getSpecific(key: mainQueueMarker) != nil
     }
 
+    /// `true` when called from code currently dispatched on `queue`. Uses a
+    /// per-call `DispatchSpecificKey` so concurrent calls do not collide.
+    /// Intended as a debug aid, not a synchronisation primitive.
     static func isCurrent(_ queue: DispatchQueue) -> Bool {
         let key = DispatchSpecificKey<Void>()
         queue.setSpecific(key: key, value: ())
@@ -18,6 +23,9 @@ public extension DispatchQueue {
         return DispatchQueue.getSpecific(key: key) != nil
     }
 
+    /// Runs `work` synchronously when the receiver is the main queue and the
+    /// caller is already on the main thread; otherwise dispatches asynchronously.
+    /// Useful for bridging legacy callback APIs to UI updates.
     func safeAsync(_ work: @escaping @Sendable () -> Void) {
         if self === DispatchQueue.main && Thread.isMainThread {
             work()
@@ -26,10 +34,12 @@ public extension DispatchQueue {
         }
     }
 
+    /// `@autoclosure` shorthand of ``safeAsync(_:)``.
     func safeAsync(execute work: @autoclosure @escaping @Sendable () -> Void) {
         safeAsync { work() }
     }
 
+    /// `TimeInterval` convenience over `asyncAfter(deadline:)`.
     func asyncAfter(
         delay: TimeInterval,
         qos: DispatchQoS = .unspecified,
@@ -39,11 +49,20 @@ public extension DispatchQueue {
         asyncAfter(deadline: .now() + delay, qos: qos, flags: flags, execute: work)
     }
 
+    /// Logs the current queue label and thread alongside `action` via
+    /// `Log.debug`. Debug aid only.
     static func log(_ action: String) {
         let queueLabel = String(validatingCString: __dispatch_queue_get_label(nil)) ?? "<unknown>"
         Log.debug("\(action) | queue: \(queueLabel) | thread: \(Thread.current)")
     }
 
+    /// Returns a closure that debounces calls to `action` by `delay` seconds.
+    /// Each invocation bumps an internal token; only the deferred work whose
+    /// token still matches the most recent invocation actually runs `action`.
+    /// - Parameters:
+    ///   - delay: How long to wait after the last call before firing.
+    ///   - action: The work to perform once the burst settles.
+    /// - Returns: A `@Sendable` trigger closure to call from any context.
     func debounce(
         delay: TimeInterval,
         action: @escaping @Sendable () -> Void
