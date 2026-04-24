@@ -33,12 +33,20 @@ struct StringExtensionsTests {
         #expect(!"foo@bar.com\nbaz".isValidEmail)
     }
 
-    @Test("parsedWords and wordCount split on spaces")
+    @Test("parsedWords and wordCount split on any whitespace")
     func words() {
         #expect("hello world foo".parsedWords == ["hello", "world", "foo"])
         #expect("hello world foo".wordCount == 3)
         #expect("".wordCount == 0)
         #expect("single".wordCount == 1)
+    }
+
+    @Test("parsedWords collapses tabs, newlines, and consecutive whitespace")
+    func wordsWithMixedWhitespace() {
+        #expect("hello\tworld".parsedWords == ["hello", "world"])
+        #expect("a\nb\nc".wordCount == 3)
+        #expect("foo   bar".parsedWords == ["foo", "bar"])
+        #expect("  leading and trailing  ".parsedWords == ["leading", "and", "trailing"])
     }
 
     @Test("withTurkishTransliteration replaces Turkish-specific characters")

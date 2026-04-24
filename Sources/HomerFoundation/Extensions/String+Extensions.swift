@@ -18,11 +18,13 @@ public extension String {
         return range(of: pattern, options: .regularExpression) != nil
     }
 
-    /// Words split on space characters. Use ``wordCount`` for the count.
-    var parsedWords: [Substring] { split(separator: " ") }
+    /// Words split on any whitespace (spaces, tabs, newlines). Consecutive
+    /// whitespace runs collapse to a single separator. Use ``wordCount`` for
+    /// the count.
+    var parsedWords: [Substring] { split(whereSeparator: \.isWhitespace) }
 
-    /// Number of space-separated words. Empty strings return `0`.
-    var wordCount: Int { isEmpty ? 0 : parsedWords.count }
+    /// Number of whitespace-separated words. Empty strings return `0`.
+    var wordCount: Int { parsedWords.count }
 
     /// ASCII transliteration of Turkish-specific characters (ç→c, ş→s, …).
     var withTurkishTransliteration: String {
