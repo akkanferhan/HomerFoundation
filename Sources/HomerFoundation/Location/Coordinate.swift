@@ -17,4 +17,10 @@ public struct Coordinate: Sendable, Equatable, Hashable {
     public var clCoordinate: CLLocationCoordinate2D {
         CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     }
+
+    public func distance(to other: Coordinate) -> CLLocationDistance {
+        let lhs = CLLocation(latitude: latitude, longitude: longitude)
+        let rhs = CLLocation(latitude: other.latitude, longitude: other.longitude)
+        return lhs.distance(from: rhs)
+    }
 }
