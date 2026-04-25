@@ -1,0 +1,129 @@
+import Foundation
+
+public extension String {
+    /// Whitespace and newline characters trimmed from both ends.
+    var whitespaceTrimmed: String {
+        trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    /// All whitespace and newline characters removed (anywhere in the string).
+    var removingWhitespaces: String {
+        components(separatedBy: .whitespacesAndNewlines).joined()
+    }
+
+    /// `true` when the entire string matches a basic email regex. Anchored to
+    /// the whole string, so substrings inside larger text do not match.
+    var isValidEmail: Bool {
+        let pattern = "^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}$"
+        return range(of: pattern, options: .regularExpression) != nil
+    }
+
+    /// Words split on any whitespace (spaces, tabs, newlines). Consecutive
+    /// whitespace runs collapse to a single separator. Use ``wordCount`` for
+    /// the count.
+    var parsedWords: [Substring] { split(whereSeparator: \.isWhitespace) }
+
+    /// Number of whitespace-separated words. Empty strings return `0`.
+    var wordCount: Int { parsedWords.count }
+
+    /// ASCII transliteration of Turkish-specific characters (ç→c, ş→s, …).
+    var withTurkishTransliteration: String {
+        let mapping: [Character: Character] = [
+            "ç": "c", "ö": "o", "ı": "i", "ğ": "g", "ü": "u", "ş": "s",
+            "Ç": "C", "Ö": "O", "İ": "I", "Ğ": "G", "Ü": "U", "Ş": "S"
+        ]
+        return String(map { mapping[$0] ?? $0 })
+    }
+
+    /// Parses an ISO-8601 timestamp, with or without fractional seconds.
+    /// Returns `nil` when the string is not a recognised ISO-8601 form.
+    var asISO8601Date: Date? {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        if let date = formatter.date(from: self) { return date }
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter.date(from: self)
+    }
+
+    /// Parses with a custom `DateFormatter` format string.
+    /// - Parameters:
+    ///   - format: A `DateFormatter`-compatible pattern (e.g. `"yyyy-MM-dd"`).
+    ///   - locale: Locale for parsing. Use `en_US_POSIX` for fixed-format strings.
+    ///   - timeZone: Time zone the input is expressed in.
+    func asDate(format: String, locale: Locale = .current, timeZone: TimeZone = .current) -> Date? {
+        let formatter = DateFormatter()
+        formatter.dateFormat = format
+        formatter.locale = locale
+        formatter.timeZone = timeZone
+        return formatter.date(from: self)
+    }
+}
+
+/// Integer-based subscripts on `String`. Indexing is `O(n)` for non-ASCII
+/// strings; out-of-range indices trap (matching `Array` behaviour).
+public extension String {
+    subscript(integer: Int) -> Character {
+        self[index(startIndex, offsetBy: integer)]
+    }
+
+    subscript(bounds: CountableRange<Int>) -> Substring {
+        let start = index(startIndex, offsetBy: bounds.lowerBound)
+        let end = index(startIndex, offsetBy: bounds.upperBound)
+        return self[start..<end]
+    }
+
+    subscript(bounds: CountableClosedRange<Int>) -> Substring {
+        let start = index(startIndex, offsetBy: bounds.lowerBound)
+        let end = index(startIndex, offsetBy: bounds.upperBound)
+        return self[start...end]
+    }
+
+    subscript(bounds: CountablePartialRangeFrom<Int>) -> Substring {
+        let start = index(startIndex, offsetBy: bounds.lowerBound)
+        return self[start...]
+    }
+
+    subscript(bounds: PartialRangeThrough<Int>) -> Substring {
+        let end = index(startIndex, offsetBy: bounds.upperBound)
+        return self[...end]
+    }
+
+    subscript(bounds: PartialRangeUpTo<Int>) -> Substring {
+        let end = index(startIndex, offsetBy: bounds.upperBound)
+        return self[..<end]
+    }
+}
+
+/// Mirrored integer subscripts on `Substring`.
+public extension Substring {
+    subscript(integer: Int) -> Character {
+        self[index(startIndex, offsetBy: integer)]
+    }
+
+    subscript(bounds: CountableRange<Int>) -> Substring {
+        let start = index(startIndex, offsetBy: bounds.lowerBound)
+        let end = index(startIndex, offsetBy: bounds.upperBound)
+        return self[start..<end]
+    }
+
+    subscript(bounds: CountableClosedRange<Int>) -> Substring {
+        let start = index(startIndex, offsetBy: bounds.lowerBound)
+        let end = index(startIndex, offsetBy: bounds.upperBound)
+        return self[start...end]
+    }
+
+    subscript(bounds: CountablePartialRangeFrom<Int>) -> Substring {
+        let start = index(startIndex, offsetBy: bounds.lowerBound)
+        return self[start...]
+    }
+
+    subscript(bounds: PartialRangeThrough<Int>) -> Substring {
+        let end = index(startIndex, offsetBy: bounds.upperBound)
+        return self[...end]
+    }
+
+    subscript(bounds: PartialRangeUpTo<Int>) -> Substring {
+        let end = index(startIndex, offsetBy: bounds.upperBound)
+        return self[..<end]
+    }
+}
