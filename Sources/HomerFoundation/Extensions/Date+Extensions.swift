@@ -5,6 +5,12 @@ public extension Date {
     var millisecondsSince1970: Double {
         timeIntervalSince1970 * 1000
     }
+    
+    /// `true` when `self` is strictly before `Date()` (now). Equal-to-now is `false`.
+    var isInPast: Bool { self < Date() }
+
+    /// `true` when `self` is strictly after `Date()` (now). Equal-to-now is `false`.
+    var isInFuture: Bool { self > Date() }
 
     /// Renders the date with a custom `DateFormatter` pattern.
     /// - Parameters:
@@ -20,12 +26,6 @@ public extension Date {
         formatter.timeZone = timeZone
         return formatter.string(from: self)
     }
-
-    /// `true` when `self` is strictly before `Date()` (now). Equal-to-now is `false`.
-    var isInPast: Bool { self < Date() }
-
-    /// `true` when `self` is strictly after `Date()` (now). Equal-to-now is `false`.
-    var isInFuture: Bool { self > Date() }
 
     /// Midnight at the start of the calendar day containing `self`.
     /// - Parameter calendar: The calendar used to find the day boundary. Defaults
