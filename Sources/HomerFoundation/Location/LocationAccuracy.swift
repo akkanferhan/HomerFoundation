@@ -25,7 +25,8 @@ public enum LocationAccuracy: Sendable, Equatable {
         }
     }
 
-    /// Round-trip back to `CLLocationAccuracy`. ``poor`` returns 5000m.
+    /// Round-trip back to `CLLocationAccuracy`. ``poor`` returns
+    /// ``Constants/Location/poorAccuracyMeters`` metres.
     public var clAccuracy: CLLocationAccuracy {
         switch self {
         case .bestForNavigation: kCLLocationAccuracyBestForNavigation
@@ -34,7 +35,7 @@ public enum LocationAccuracy: Sendable, Equatable {
         case .hundredMeters: kCLLocationAccuracyHundredMeters
         case .kilometer: kCLLocationAccuracyKilometer
         case .threeKilometers: kCLLocationAccuracyThreeKilometers
-        case .poor: 5000
+        case .poor: Constants.Location.poorAccuracyMeters
         }
     }
 }
