@@ -29,6 +29,8 @@ public final class LocationService: NSObject {
 
     @ObservationIgnored private let manager: CLLocationManager
 
+    /// Creates a service backed by a fresh `CLLocationManager`. The current
+    /// system authorization status is sampled synchronously into ``authorization``.
     public override init() {
         let manager = CLLocationManager()
         self.manager = manager

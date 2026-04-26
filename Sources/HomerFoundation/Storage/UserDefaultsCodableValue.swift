@@ -46,6 +46,11 @@ public struct UserDefaultsCodableValue<Value: Codable & Sendable>: @unchecked Se
         self.decoder = decoder
     }
 
+    /// Decodes from / encodes into the underlying store. A missing key or a
+    /// failed decode silently returns ``defaultValue``. Assigning `nil` to an
+    /// `Optional` `Value` removes the key; encoder errors on write are silently
+    /// dropped (use ``Encodable/asDictionary(encoder:)`` directly when you need
+    /// to surface them).
     public var wrappedValue: Value {
         get {
             guard
