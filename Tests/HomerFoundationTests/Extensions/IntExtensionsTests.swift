@@ -1,5 +1,6 @@
-import Testing
 import CoreGraphics
+import Foundation
+import Testing
 @testable import HomerFoundation
 
 @Suite("Int+Extensions")

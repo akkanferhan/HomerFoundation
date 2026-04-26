@@ -1,6 +1,26 @@
-import Testing
 import CoreLocation
+import Foundation
+import Testing
 @testable import HomerFoundation
+
+@Suite("Coordinate.distance")
+struct CoordinateDistanceTests {
+    @Test("distance to self is zero")
+    func distanceToSelf() {
+        let a = Coordinate(latitude: 41.015137, longitude: 28.979530)
+        #expect(a.distance(to: a) == 0)
+    }
+
+    @Test("distance is symmetric and roughly matches expected meters")
+    func distanceBetweenLandmarks() {
+        let istanbul = Coordinate(latitude: 41.015137, longitude: 28.979530)
+        let ankara = Coordinate(latitude: 39.933365, longitude: 32.859741)
+        let forward = istanbul.distance(to: ankara)
+        let backward = ankara.distance(to: istanbul)
+        #expect(abs(forward - backward) < 1)
+        #expect(forward > 300_000 && forward < 400_000)
+    }
+}
 
 @Suite("Coordinate")
 struct CoordinateTests {
