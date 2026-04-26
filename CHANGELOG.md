@@ -6,6 +6,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.2.0] — 2026-04-26
+
+### Added
+
+- `VoidCompletion`, `ValueCompletion<T>`, `Parameters` — canonical closure and parameter-bag typealiases shared across the Homer suite. `VoidCompletion` = `() -> Void`; `ValueCompletion<T>` = `(T) -> Void`; `Parameters` = `[String: Any]` for untyped key/value bags.
+- `String.asDouble` — parses the string as a `Double` via `Double.init(_:)`; returns `nil` for non-numeric input.
+- `String.asURL` — guarded `URL(string:)` helper; returns `nil` for strings that are not valid URLs.
+- `Data.append(_:encoding:)` — `@discardableResult mutating` convenience to append a `String` with a chosen `String.Encoding` (defaults to `.utf8`). Returns `false` and leaves the receiver untouched when the string cannot be encoded.
+- `Double.zeroOmitted(decimals:)` — formats the value with up to `decimals` fractional digits (default `1`), dropping the fraction entirely when the value is a whole number. Output uses `.` as decimal separator (locale-independent).
+- `Result+Extensions` — `value`, `error`, `isSuccess`, `isFailure` accessors for terser conditional unwrapping.
+- `Bundle+Extensions` — `appVersion`, `buildNumber`, `displayName` (with display → name → executable fallback), and `versionAndBuild`.
+- `String.nilIfEmpty` and `String.trimmedOrNil` — pair with `??` to fall back to defaults for empty / whitespace-only input.
+- `Date.isInPast`, `Date.isInFuture`, `Date.startOfDay(in:)`, `Date.isSameDay(as:in:)` — common calendar conveniences.
+- `Coordinate` now conforms to `Codable` for storage / wire-format use cases.
+
+### Changed
+
+- Hard-coded queue labels, the `Log.default` subsystem fallback, and the
+  `LocationAccuracy.poor` magic value were lifted into an internal `Constants`
+  namespace so the dispatch and channel labels live next to each other.
+- Filled in DocC comments for previously undocumented public symbols on
+  `UserDefaultsValue`, `UserDefaultsCodableValue`, `PhoneNumberFormat.init`,
+  `PhoneNumberFormatter.init`, `LocationService.init`, `Coordinate`, and the
+  `AnyOptional` `Optional` conformance. Added explicit per-subscript docs
+  (with trap warnings) on `String` / `Substring` integer subscripts.
+
 ## [0.1.0] — 2026-04-25
 
 Initial release. Modern Swift 6 / iOS 18 rewrite of the legacy `FAFoundation` library, with strict concurrency, async/await, the `Observation` framework, Swift Testing, and DocC throughout.
@@ -33,5 +59,6 @@ Initial release. Modern Swift 6 / iOS 18 rewrite of the legacy `FAFoundation` li
 - **Networking** is intentionally out of scope; it ships as a separate Swift package.
 - Legacy `Constants`, manual observer pattern types, and `() -> ()` typealiases were dropped in favor of injectable stores, the `@Observable` macro, and raw closure types.
 
-[Unreleased]: https://github.com/ferhanakkan/HomerFoundation/compare/0.1.0...HEAD
+[Unreleased]: https://github.com/ferhanakkan/HomerFoundation/compare/0.2.0...HEAD
+[0.2.0]: https://github.com/ferhanakkan/HomerFoundation/releases/tag/0.2.0
 [0.1.0]: https://github.com/ferhanakkan/HomerFoundation/releases/tag/0.1.0

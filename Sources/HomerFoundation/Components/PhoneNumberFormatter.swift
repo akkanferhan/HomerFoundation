@@ -7,6 +7,10 @@ public struct PhoneNumberFormat: Sendable, Equatable {
     /// The literal mask with `#` placeholders for digits.
     public let mask: String
 
+    /// Creates a custom format from a free-form mask string.
+    /// - Parameter mask: A string where `#` characters mark digit slots and any
+    ///   other character is treated as a literal that will appear verbatim in
+    ///   the formatted output (e.g. `"+## (###) ###-####"`).
     public init(mask: String) {
         self.mask = mask
     }
@@ -28,6 +32,11 @@ public struct PhoneNumberFormatter: Sendable {
     /// common Turkish trunk-prefix normalisation).
     public let stripsLeadingZero: Bool
 
+    /// Creates a formatter with a fixed mask preset.
+    /// - Parameters:
+    ///   - format: The mask to apply on every call to ``format(_:)``.
+    ///   - stripsLeadingZero: When `true` (the default) a single leading `0`
+    ///     is dropped from the input before applying the mask.
     public init(format: PhoneNumberFormat, stripsLeadingZero: Bool = true) {
         self.format = format
         self.stripsLeadingZero = stripsLeadingZero

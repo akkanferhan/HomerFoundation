@@ -11,6 +11,21 @@ public extension String {
         components(separatedBy: .whitespacesAndNewlines).joined()
     }
 
+    /// Returns `nil` when the string is empty, otherwise returns `self`.
+    /// Pairs with `??` to fall back to a default — `name.nilIfEmpty ?? "Anonymous"`.
+    var nilIfEmpty: String? {
+        isEmpty ? nil : self
+    }
+
+    /// Returns `nil` when the string is empty after trimming whitespace and
+    /// newlines from both ends, otherwise returns the trimmed value. Useful for
+    /// validating user-entered text fields where pure-whitespace input should
+    /// be treated as missing.
+    var trimmedOrNil: String? {
+        let trimmed = whitespaceTrimmed
+        return trimmed.isEmpty ? nil : trimmed
+    }
+
     /// `true` when the entire string matches a basic email regex. Anchored to
     /// the whole string, so substrings inside larger text do not match.
     var isValidEmail: Bool {
@@ -34,6 +49,14 @@ public extension String {
         ]
         return String(map { mapping[$0] ?? $0 })
     }
+
+    /// Parses the string as a `Double` via `Double.init(_:)`. Returns `nil`
+    /// when the string is not a valid decimal literal.
+    var asDouble: Double? { Double(self) }
+
+    /// Builds a `URL` via `URL(string:)`. Returns `nil` for strings that are
+    /// not valid URLs (e.g. empty, contain disallowed characters).
+    var asURL: URL? { URL(string: self) }
 
     /// Parses an ISO-8601 timestamp, with or without fractional seconds.
     /// Returns `nil` when the string is not a recognised ISO-8601 form.
@@ -61,67 +84,86 @@ public extension String {
 
 /// Integer-based subscripts on `String`. Indexing is `O(n)` for non-ASCII
 /// strings; out-of-range indices trap (matching `Array` behaviour).
+///
+/// - Important: These subscripts trap on out-of-range indices. For safe
+///   element access prefer ``Swift/Collection/subscript(safe:)`` after first
+///   converting to `Array(self)`.
 public extension String {
+    /// The character at the integer offset from `startIndex`. Traps when
+    /// `integer` is out of bounds.
     subscript(integer: Int) -> Character {
         self[index(startIndex, offsetBy: integer)]
     }
 
+    /// Substring delimited by integer half-open bounds. Traps on out-of-range bounds.
     subscript(bounds: CountableRange<Int>) -> Substring {
         let start = index(startIndex, offsetBy: bounds.lowerBound)
         let end = index(startIndex, offsetBy: bounds.upperBound)
         return self[start..<end]
     }
 
+    /// Substring delimited by integer closed bounds. Traps on out-of-range bounds.
     subscript(bounds: CountableClosedRange<Int>) -> Substring {
         let start = index(startIndex, offsetBy: bounds.lowerBound)
         let end = index(startIndex, offsetBy: bounds.upperBound)
         return self[start...end]
     }
 
+    /// Substring from `lowerBound` to the end of the string.
     subscript(bounds: CountablePartialRangeFrom<Int>) -> Substring {
         let start = index(startIndex, offsetBy: bounds.lowerBound)
         return self[start...]
     }
 
+    /// Substring from `startIndex` through `upperBound` (inclusive).
     subscript(bounds: PartialRangeThrough<Int>) -> Substring {
         let end = index(startIndex, offsetBy: bounds.upperBound)
         return self[...end]
     }
 
+    /// Substring from `startIndex` up to (but not including) `upperBound`.
     subscript(bounds: PartialRangeUpTo<Int>) -> Substring {
         let end = index(startIndex, offsetBy: bounds.upperBound)
         return self[..<end]
     }
 }
 
-/// Mirrored integer subscripts on `Substring`.
+/// Mirrored integer subscripts on `Substring`. Same trap behaviour as the
+/// `String` overloads.
 public extension Substring {
+    /// The character at the integer offset from `startIndex`. Traps when
+    /// `integer` is out of bounds.
     subscript(integer: Int) -> Character {
         self[index(startIndex, offsetBy: integer)]
     }
 
+    /// Substring delimited by integer half-open bounds. Traps on out-of-range bounds.
     subscript(bounds: CountableRange<Int>) -> Substring {
         let start = index(startIndex, offsetBy: bounds.lowerBound)
         let end = index(startIndex, offsetBy: bounds.upperBound)
         return self[start..<end]
     }
 
+    /// Substring delimited by integer closed bounds. Traps on out-of-range bounds.
     subscript(bounds: CountableClosedRange<Int>) -> Substring {
         let start = index(startIndex, offsetBy: bounds.lowerBound)
         let end = index(startIndex, offsetBy: bounds.upperBound)
         return self[start...end]
     }
 
+    /// Substring from `lowerBound` to the end of the substring.
     subscript(bounds: CountablePartialRangeFrom<Int>) -> Substring {
         let start = index(startIndex, offsetBy: bounds.lowerBound)
         return self[start...]
     }
 
+    /// Substring from `startIndex` through `upperBound` (inclusive).
     subscript(bounds: PartialRangeThrough<Int>) -> Substring {
         let end = index(startIndex, offsetBy: bounds.upperBound)
         return self[...end]
     }
 
+    /// Substring from `startIndex` up to (but not including) `upperBound`.
     subscript(bounds: PartialRangeUpTo<Int>) -> Substring {
         let end = index(startIndex, offsetBy: bounds.upperBound)
         return self[..<end]

@@ -9,6 +9,8 @@ public protocol AnyOptional {
 }
 
 extension Optional: AnyOptional {
+    /// `true` when `self == .none`.
     public var isNil: Bool { self == nil }
+    /// `true` when `self == .some`.
     public var isNotNil: Bool { self != nil }
 }

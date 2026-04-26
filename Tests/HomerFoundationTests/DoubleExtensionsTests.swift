@@ -20,4 +20,14 @@ struct DoubleExtensionsTests {
         #expect((1.0).rounded(toPlaces: 3) == 1.0)
         #expect((1.999).rounded(toPlaces: 0) == 2.0)
     }
+
+    @Test("zeroOmitted drops fraction when whole and respects decimals otherwise")
+    func zeroOmitted() {
+        #expect((3.0).zeroOmitted() == "3")
+        #expect((3.5).zeroOmitted() == "3.5")
+        #expect((3.14159).zeroOmitted(decimals: 2) == "3.14")
+        #expect((3.14159).zeroOmitted(decimals: 0) == "3")
+        #expect((-2.5).zeroOmitted() == "-2.5")
+        #expect((1.5).zeroOmitted(decimals: -3) == "2")
+    }
 }
