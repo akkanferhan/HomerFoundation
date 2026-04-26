@@ -56,6 +56,21 @@ struct StringExtensionsTests {
         #expect("İSTANBUL".withTurkishTransliteration == "ISTANBUL")
     }
 
+    @Test("asDouble parses decimal literals or returns nil")
+    func asDouble() {
+        #expect("3.14".asDouble == 3.14)
+        #expect("-2".asDouble == -2.0)
+        #expect("".asDouble == nil)
+        #expect("not a number".asDouble == nil)
+    }
+
+    @Test("asURL builds URL from valid string or returns nil")
+    func asURL() {
+        #expect("https://example.com/path".asURL?.absoluteString == "https://example.com/path")
+        #expect("relative/path".asURL != nil)
+        #expect("".asURL == nil)
+    }
+
     @Test("asISO8601Date parses dates with and without fractional seconds")
     func iso8601Parse() {
         #expect("2024-01-15T10:30:00Z".asISO8601Date != nil)

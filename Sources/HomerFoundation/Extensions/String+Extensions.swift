@@ -35,6 +35,14 @@ public extension String {
         return String(map { mapping[$0] ?? $0 })
     }
 
+    /// Parses the string as a `Double` via `Double.init(_:)`. Returns `nil`
+    /// when the string is not a valid decimal literal.
+    var asDouble: Double? { Double(self) }
+
+    /// Builds a `URL` via `URL(string:)`. Returns `nil` for strings that are
+    /// not valid URLs (e.g. empty, contain disallowed characters).
+    var asURL: URL? { URL(string: self) }
+
     /// Parses an ISO-8601 timestamp, with or without fractional seconds.
     /// Returns `nil` when the string is not a recognised ISO-8601 form.
     var asISO8601Date: Date? {
