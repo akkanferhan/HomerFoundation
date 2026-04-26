@@ -27,4 +27,25 @@ struct DataExtensionsTests {
             _ = try data.asJSONDictionary()
         }
     }
+
+    @Test("append(_:encoding:) appends UTF-8 bytes by default and reports success")
+    func appendStringDefault() {
+        var data = Data()
+        let ok = data.append("hello")
+        #expect(ok)
+        #expect(String(data: data, encoding: .utf8) == "hello")
+
+        let ok2 = data.append(" world")
+        #expect(ok2)
+        #expect(String(data: data, encoding: .utf8) == "hello world")
+    }
+
+    @Test("append(_:encoding:) returns false and leaves data untouched when string is not representable")
+    func appendStringIncompatibleEncoding() {
+        var data = Data("seed".utf8)
+        let snapshot = data
+        let ok = data.append("çığlık", encoding: .ascii)
+        #expect(!ok)
+        #expect(data == snapshot)
+    }
 }
