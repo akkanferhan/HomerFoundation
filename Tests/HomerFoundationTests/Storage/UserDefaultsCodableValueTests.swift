@@ -1,11 +1,6 @@
-import Testing
 import Foundation
+import Testing
 @testable import HomerFoundation
-
-private struct Profile: Codable, Equatable {
-    let id: Int
-    let name: String
-}
 
 @Suite("UserDefaultsCodableValue")
 struct UserDefaultsCodableValueTests {
@@ -19,7 +14,7 @@ struct UserDefaultsCodableValueTests {
     @Test("Default value is returned when key is missing")
     func defaultValue() {
         let store = makeStore()
-        let fallback = Profile(id: 0, name: "anonymous")
+        let fallback = CodableProfile(id: 0, name: "anonymous")
         let wrapper = UserDefaultsCodableValue(wrappedValue: fallback, key: "profile", store: store)
         #expect(wrapper.wrappedValue == fallback)
     }
@@ -28,11 +23,11 @@ struct UserDefaultsCodableValueTests {
     func roundTrip() {
         let store = makeStore()
         var wrapper = UserDefaultsCodableValue(
-            wrappedValue: Profile(id: 0, name: "anon"),
+            wrappedValue: CodableProfile(id: 0, name: "anon"),
             key: "profile",
             store: store
         )
-        let updated = Profile(id: 7, name: "alice")
+        let updated = CodableProfile(id: 7, name: "alice")
         wrapper.wrappedValue = updated
         #expect(wrapper.wrappedValue == updated)
     }
@@ -40,7 +35,7 @@ struct UserDefaultsCodableValueTests {
     @Test("Default value is returned when stored data is corrupt")
     func corruptDataFallsBackToDefault() {
         let store = makeStore()
-        let fallback = Profile(id: 0, name: "anon")
+        let fallback = CodableProfile(id: 0, name: "anon")
         store.set(Data([0xFF, 0xFE, 0xFD]), forKey: "profile")
         let wrapper = UserDefaultsCodableValue(wrappedValue: fallback, key: "profile", store: store)
         #expect(wrapper.wrappedValue == fallback)
@@ -49,8 +44,8 @@ struct UserDefaultsCodableValueTests {
     @Test("Setting nil on optional Value removes the key")
     func optionalNilRemovesKey() {
         let store = makeStore()
-        var wrapper = UserDefaultsCodableValue<Profile?>(wrappedValue: nil, key: "profile", store: store)
-        wrapper.wrappedValue = Profile(id: 1, name: "bob")
+        var wrapper = UserDefaultsCodableValue<CodableProfile?>(wrappedValue: nil, key: "profile", store: store)
+        wrapper.wrappedValue = CodableProfile(id: 1, name: "bob")
         #expect(store.data(forKey: "profile") != nil)
         wrapper.wrappedValue = nil
         #expect(store.data(forKey: "profile") == nil)
@@ -76,4 +71,11 @@ struct UserDefaultsCodableValueTests {
         wrapper.wrappedValue = item
         #expect(wrapper.wrappedValue == item)
     }
+}
+
+// MARK: - Helpers
+
+private struct CodableProfile: Codable, Equatable {
+    let id: Int
+    let name: String
 }

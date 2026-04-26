@@ -1,5 +1,5 @@
-import Testing
 import Foundation
+import Testing
 @testable import HomerFoundation
 
 @Suite("Bundle+Extensions")
@@ -83,7 +83,7 @@ struct BundleExtensionsTests {
         #expect(neither.versionAndBuild == nil)
     }
 
-    // MARK: - Helpers
+    // MARK: Helpers
 
     /// Materialises a real on-disk bundle directory containing the given
     /// `Info.plist` keys, then loads it via `Bundle(url:)`. This is the only
@@ -108,6 +108,8 @@ struct BundleExtensionsTests {
         return bundle
     }
 }
+
+// MARK: - Helpers
 
 private enum BundleStubError: Error {
     case couldNotLoad
