@@ -30,7 +30,10 @@ public final class Reachability {
     public private(set) var connectionType: ConnectionType = .unavailable
 
     @ObservationIgnored private var monitor: NWPathMonitor?
-    @ObservationIgnored private let queue = DispatchQueue(label: "com.homer.foundation.reachability", qos: .utility)
+    @ObservationIgnored private let queue = DispatchQueue(
+        label: Constants.Labels.reachabilityMonitor,
+        qos: .utility
+    )
 
     public init() {}
 
@@ -88,7 +91,7 @@ public final class Reachability {
     public nonisolated static func currentStatus() async -> ConnectionType {
         await withCheckedContinuation { continuation in
             let monitor = NWPathMonitor()
-            let queue = DispatchQueue(label: "com.homer.foundation.reachability.oneshot")
+            let queue = DispatchQueue(label: Constants.Labels.reachabilityOneShot)
             let once = OnceFlag()
             monitor.pathUpdateHandler = { path in
                 guard once.fire() else { return }

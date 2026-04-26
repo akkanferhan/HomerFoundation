@@ -1,11 +1,17 @@
 import CoreLocation
 
 /// A latitude/longitude pair, decoupled from `CLLocationCoordinate2D` so it can
-/// flow safely across actor boundaries (`Sendable` + `Hashable`).
-public struct Coordinate: Sendable, Equatable, Hashable {
+/// flow safely across actor boundaries (`Sendable` + `Hashable` + `Codable`).
+public struct Coordinate: Sendable, Equatable, Hashable, Codable {
+    /// Latitude in degrees. Positive values are north of the equator.
     public let latitude: Double
+    /// Longitude in degrees. Positive values are east of the prime meridian.
     public let longitude: Double
 
+    /// Creates a coordinate from raw latitude and longitude values.
+    /// - Parameters:
+    ///   - latitude: Degrees north of the equator (negative for southern hemisphere).
+    ///   - longitude: Degrees east of the prime meridian (negative for western hemisphere).
     public init(latitude: Double, longitude: Double) {
         self.latitude = latitude
         self.longitude = longitude

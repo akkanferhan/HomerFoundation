@@ -20,4 +20,25 @@ public extension Date {
         formatter.timeZone = timeZone
         return formatter.string(from: self)
     }
+
+    /// `true` when `self` is strictly before `Date()` (now). Equal-to-now is `false`.
+    var isInPast: Bool { self < Date() }
+
+    /// `true` when `self` is strictly after `Date()` (now). Equal-to-now is `false`.
+    var isInFuture: Bool { self > Date() }
+
+    /// Midnight at the start of the calendar day containing `self`.
+    /// - Parameter calendar: The calendar used to find the day boundary. Defaults
+    ///   to `.current`. Pass an explicit calendar for tests or fixed scheduling.
+    func startOfDay(in calendar: Calendar = .current) -> Date {
+        calendar.startOfDay(for: self)
+    }
+
+    /// `true` when `self` falls on the same calendar day as `other`.
+    /// - Parameters:
+    ///   - other: The date to compare against.
+    ///   - calendar: The calendar used to determine day boundaries.
+    func isSameDay(as other: Date, in calendar: Calendar = .current) -> Bool {
+        calendar.isDate(self, inSameDayAs: other)
+    }
 }

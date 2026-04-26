@@ -19,11 +19,12 @@ public struct Log: Sendable {
         self.logger = os.Logger(subsystem: subsystem, category: category)
     }
 
-    /// Default channel — uses `Bundle.main.bundleIdentifier` (or `"HomerFoundation"`)
-    /// as the subsystem and `"default"` as the category.
+    /// Default channel — uses `Bundle.main.bundleIdentifier` (or
+    /// ``Constants/Logging/defaultSubsystem``) as the subsystem and
+    /// ``Constants/Logging/defaultCategory`` as the category.
     public static let `default` = Log(
-        subsystem: Bundle.main.bundleIdentifier ?? "HomerFoundation",
-        category: "default"
+        subsystem: Bundle.main.bundleIdentifier ?? Constants.Logging.defaultSubsystem,
+        category: Constants.Logging.defaultCategory
     )
 
     /// Logs a message at the `.debug` level.
