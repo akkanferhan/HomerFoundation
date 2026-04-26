@@ -114,18 +114,20 @@ Foundation-friendly utilities — all `Sendable`-clean and DocC-documented.
 | Type | Highlights |
 |---|---|
 | `Array` | `safe` subscript |
+| `Bundle` | `appVersion`, `buildNumber`, `displayName`, `versionAndBuild` |
 | `Collection` | `isNotEmpty` |
 | `Comparable` | `clamped(to:)` |
-| `Data` | `asJSONDictionary()` |
-| `Date` | `millisecondsSince1970`, `string(withFormat:locale:timeZone:)` |
+| `Data` | `asJSONDictionary()`, `append(_:encoding:)` |
+| `Date` | `millisecondsSince1970`, `string(withFormat:locale:timeZone:)`, `isInPast`, `isInFuture`, `startOfDay(in:)`, `isSameDay(as:in:)` |
 | `Dictionary<String, Any>` | `asJSONString()` |
 | `DispatchQueue` | `safeAsync { … }` (re-entrant main hop), `debounce`, `isMainQueue` |
-| `Double` | `asInt`, `asCGFloat`, `asFloat`, `asString`, `rounded(toPlaces:)` |
+| `Double` | `asInt`, `asCGFloat`, `asFloat`, `asString`, `rounded(toPlaces:)`, `zeroOmitted(decimals:)` |
 | `Encodable` | `asDictionary(encoder:)` |
 | `Int` | `asCGFloat`, `asFloat`, `asDouble`, `asString` |
 | `Optional` | `orEmpty`, `orZero`, `orFalse`, `isNilOrEmpty`, `isNotNilOrEmpty` |
+| `Result` | `value`, `error`, `isSuccess`, `isFailure` |
 | `Sequence` | `uniqued()`, `uniqued(on:)` |
-| `String` / `Substring` | `isValidEmail`, `parsedWords`, `wordCount`, `asISO8601Date`, `asDate(format:)`, `whitespaceTrimmed`, `withTurkishTransliteration`, integer subscript |
+| `String` / `Substring` | `isValidEmail`, `parsedWords`, `wordCount`, `asISO8601Date`, `asDate(format:)`, `asDouble`, `asURL`, `whitespaceTrimmed`, `removingWhitespaces`, `nilIfEmpty`, `trimmedOrNil`, `withTurkishTransliteration`, integer subscript |
 | `Thread` | `threadName`, `queueName`, `printCurrent()` |
 | `JSONError` | shared error type for the JSON helpers |
 

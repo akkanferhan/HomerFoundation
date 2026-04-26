@@ -6,6 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- `Result+Extensions` — `value`, `error`, `isSuccess`, `isFailure` accessors for terser conditional unwrapping.
+- `Bundle+Extensions` — `appVersion`, `buildNumber`, `displayName` (with display → name → executable fallback), and `versionAndBuild`.
+- `String.nilIfEmpty` and `String.trimmedOrNil` — pair with `??` to fall back to defaults for empty / whitespace-only input.
+- `Date.isInPast`, `Date.isInFuture`, `Date.startOfDay(in:)`, `Date.isSameDay(as:in:)` — common calendar conveniences.
+- `Coordinate` now conforms to `Codable` for storage / wire-format use cases.
+
+### Changed
+
+- Hard-coded queue labels, the `Log.default` subsystem fallback, and the
+  `LocationAccuracy.poor` magic value were lifted into an internal `Constants`
+  namespace so the dispatch and channel labels live next to each other.
+- Filled in DocC comments for previously undocumented public symbols on
+  `UserDefaultsValue`, `UserDefaultsCodableValue`, `PhoneNumberFormat.init`,
+  `PhoneNumberFormatter.init`, `LocationService.init`, `Coordinate`, and the
+  `AnyOptional` `Optional` conformance. Added explicit per-subscript docs
+  (with trap warnings) on `String` / `Substring` integer subscripts.
+
 ## [0.1.0] — 2026-04-25
 
 Initial release. Modern Swift 6 / iOS 18 rewrite of the legacy `FAFoundation` library, with strict concurrency, async/await, the `Observation` framework, Swift Testing, and DocC throughout.
