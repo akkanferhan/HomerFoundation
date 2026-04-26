@@ -6,6 +6,41 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-04-27
+
+### Added
+
+- `Array.subscript(safe:)` — bounds-checked element access. Returns `nil` for
+  indices outside the array's `indices` (including negative values), avoiding
+  the trap of the regular subscript on out-of-range access.
+
+### Removed
+
+- **BREAKING**: `HomerFoundation.version` literal. Consumers should derive the
+  version from `Bundle` or `Package.resolved` instead. Aligns with the same
+  cleanup applied to HomerImagery in its 0.1.0 candidate.
+
+### Changed
+
+- `Date+Extensions` reordered: `isInPast` and `isInFuture` now sit alongside
+  `millisecondsSince1970` so all time-relative properties are grouped above
+  formatting helpers. No semantic change.
+
+### Tests
+
+- Test target reorganized into folders mirroring `Sources/HomerFoundation`
+  (`Extensions/`, `Components/`, `Location/`, `Logging/`, `Reachability/`,
+  `Storage/`, `Protocols/`, `Typealiases/`). 26 test files restored from a
+  short-lived single-file consolidation; helper types moved back into the
+  suites that use them.
+- Five new `@Test`s cover `Array.subscript(safe:)` (valid index, out-of-bounds,
+  negative, empty array, single-element).
+
+### Migration
+
+- If consumer code referenced `HomerFoundation.version`, replace with
+  `Bundle.main.appVersion` (provided by HomerFoundation 0.2.0+).
+
 ## [0.2.0] — 2026-04-26
 
 ### Added
@@ -59,6 +94,7 @@ Initial release. Modern Swift 6 / iOS 18 rewrite of the legacy `FAFoundation` li
 - **Networking** is intentionally out of scope; it ships as a separate Swift package.
 - Legacy `Constants`, manual observer pattern types, and `() -> ()` typealiases were dropped in favor of injectable stores, the `@Observable` macro, and raw closure types.
 
-[Unreleased]: https://github.com/ferhanakkan/HomerFoundation/compare/0.2.0...HEAD
-[0.2.0]: https://github.com/ferhanakkan/HomerFoundation/releases/tag/0.2.0
-[0.1.0]: https://github.com/ferhanakkan/HomerFoundation/releases/tag/0.1.0
+[Unreleased]: https://github.com/akkanferhan/HomerFoundation/compare/0.3.0...HEAD
+[0.3.0]: https://github.com/akkanferhan/HomerFoundation/releases/tag/0.3.0
+[0.2.0]: https://github.com/akkanferhan/HomerFoundation/releases/tag/0.2.0
+[0.1.0]: https://github.com/akkanferhan/HomerFoundation/releases/tag/0.1.0

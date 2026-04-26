@@ -1,17 +1,12 @@
-import Testing
 import Foundation
+import Testing
 @testable import HomerFoundation
-
-private struct User: Encodable {
-    let id: Int
-    let name: String
-}
 
 @Suite("Encodable+Extensions")
 struct EncodableExtensionsTests {
     @Test("asDictionary round-trips Codable values to a dictionary")
     func asDictionary() throws {
-        let user = User(id: 7, name: "alice")
+        let user = EncodableUser(id: 7, name: "alice")
         let dict = try user.asDictionary()
         #expect(dict["id"] as? Int == 7)
         #expect(dict["name"] as? String == "alice")
@@ -34,4 +29,11 @@ struct EncodableExtensionsTests {
         let dict = try item.asDictionary(encoder: encoder)
         #expect(dict["createdAt"] as? Double == 1000)
     }
+}
+
+// MARK: - Helpers
+
+private struct EncodableUser: Encodable {
+    let id: Int
+    let name: String
 }

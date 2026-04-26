@@ -1,5 +1,5 @@
-import Testing
 import Foundation
+import Testing
 @testable import HomerFoundation
 
 @Suite("DispatchQueue+Extensions")
@@ -99,6 +99,8 @@ struct DispatchQueueExtensionsTests {
         #expect(count == 2)
     }
 }
+
+// MARK: - Helpers
 
 private actor DebounceCounter {
     private(set) var value: Int = 0
