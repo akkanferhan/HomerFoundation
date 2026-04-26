@@ -21,6 +21,14 @@ struct CoordinateTests {
         #expect(roundTrip.latitude == 1.5)
         #expect(roundTrip.longitude == 2.5)
     }
+
+    @Test("Codable round-trips through JSON")
+    func codableRoundTrip() throws {
+        let original = Coordinate(latitude: 41.015, longitude: 28.979)
+        let data = try JSONEncoder().encode(original)
+        let decoded = try JSONDecoder().decode(Coordinate.self, from: data)
+        #expect(decoded == original)
+    }
 }
 
 @Suite("LocationAuthorization")
