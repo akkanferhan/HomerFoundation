@@ -13,4 +13,10 @@ public extension Array {
     mutating func removeFirstSafely() -> Element? {
         isEmpty ? nil : removeFirst()
     }
+    
+    /// Returns the element at the specified index if it is within bounds,
+    /// otherwise returns nil.
+    subscript(safe index: Index) -> Element? {
+        return indices.contains(index) ? self[index] : nil
+    }
 }
