@@ -115,4 +115,21 @@ struct StringExtensionsTests {
         #expect(s[6...10] == "world")
         #expect(s[...4] == "hello")
     }
+
+    @Test("nilIfEmpty returns nil only for the empty string")
+    func nilIfEmpty() {
+        #expect("".nilIfEmpty == nil)
+        #expect("hello".nilIfEmpty == "hello")
+        // Whitespace-only strings are not considered empty here — use `trimmedOrNil`.
+        #expect("   ".nilIfEmpty == "   ")
+    }
+
+    @Test("trimmedOrNil returns nil for empty and whitespace-only input")
+    func trimmedOrNil() {
+        #expect("".trimmedOrNil == nil)
+        #expect("   ".trimmedOrNil == nil)
+        #expect("\n\t".trimmedOrNil == nil)
+        #expect(" hello ".trimmedOrNil == "hello")
+        #expect("hello".trimmedOrNil == "hello")
+    }
 }
