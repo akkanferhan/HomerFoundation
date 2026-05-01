@@ -6,6 +6,47 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-05-01
+
+### Added
+
+- `ReachabilityProviding` — protocol abstraction over the connectivity API.
+  Conformers expose `isConnected`, `connectionType`, `start()`, and `stop()`,
+  and must be `@Observable` so SwiftUI views and `@Bindable` continue to
+  re-render on state changes. Lets consumers depend on the protocol and
+  inject either the real ``Reachability`` or a stub.
+- `PreviewReachability` — mutable, observation-friendly stub conforming to
+  `ReachabilityProviding`. `start()` / `stop()` are no-ops; tests and SwiftUI
+  previews drive `isConnected` / `connectionType` directly to simulate
+  transitions without touching `NWPathMonitor`.
+
+### Changed
+
+- `Reachability.ConnectionType` was lifted to a top-level `ConnectionType`
+  enum so the new protocol can reference it without depending on the
+  concrete conformer. A typealias inside `Reachability` keeps the old
+  `Reachability.ConnectionType` spelling working — existing call sites
+  compile unchanged.
+- `Reachability` now formally conforms to `ReachabilityProviding`. Its
+  storage, behaviour, and `currentStatus()` API are unchanged.
+
+### Migration
+
+- No required changes. To opt into protocol-based DI, switch consumer
+  signatures from `Reachability` to `any ReachabilityProviding` (or a
+  generic `R: ReachabilityProviding`) and inject `PreviewReachability` in
+  previews / tests.
+
+## [0.4.0] — 2026-04-29
+
+### Added
+
+- `HTTPRetryPolicy` — transport-agnostic retry policy for HTTP error
+  handling. Retries on 408 / 429 / 503 with exponential backoff, honouring
+  `Retry-After` (delta-seconds and HTTP-date forms) and capped attempt
+  counts. Designed to drop into HomerNetwork or any URLSession-based
+  client without coupling to a specific transport type.
+
 ## [0.3.0] — 2026-04-27
 
 ### Added
@@ -94,7 +135,9 @@ Initial release. Modern Swift 6 / iOS 18 rewrite of the legacy `FAFoundation` li
 - **Networking** is intentionally out of scope; it ships as a separate Swift package.
 - Legacy `Constants`, manual observer pattern types, and `() -> ()` typealiases were dropped in favor of injectable stores, the `@Observable` macro, and raw closure types.
 
-[Unreleased]: https://github.com/akkanferhan/HomerFoundation/compare/0.3.0...HEAD
+[Unreleased]: https://github.com/akkanferhan/HomerFoundation/compare/0.5.0...HEAD
+[0.5.0]: https://github.com/akkanferhan/HomerFoundation/releases/tag/0.5.0
+[0.4.0]: https://github.com/akkanferhan/HomerFoundation/releases/tag/0.4.0
 [0.3.0]: https://github.com/akkanferhan/HomerFoundation/releases/tag/0.3.0
 [0.2.0]: https://github.com/akkanferhan/HomerFoundation/releases/tag/0.2.0
 [0.1.0]: https://github.com/akkanferhan/HomerFoundation/releases/tag/0.1.0
