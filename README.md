@@ -5,7 +5,7 @@ Modern Swift 6 / iOS 18 foundation library for the Homer suite of Apple apps. A 
 - **Swift tools:** 6.0 (`swiftLanguageModes: [.v6]`, strict concurrency)
 - **Platforms:** iOS 18+, macOS 14+
 - **Tests:** Swift Testing
-- **Status:** `0.1.0` — public API documented with DocC, 0 warnings
+- **Status:** `0.5.0` — public API documented with DocC, 0 warnings
 
 ## Installation
 
@@ -13,7 +13,7 @@ Swift Package Manager — add to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/ferhanakkan/HomerFoundation.git", from: "0.1.0")
+    .package(url: "https://github.com/ferhanakkan/HomerFoundation.git", from: "0.5.0")
 ]
 ```
 
@@ -61,9 +61,12 @@ enum Settings {
 
 Both wrappers accept an injectable `store: UserDefaults` for tests and app groups.
 
-### Reachability
+### Reachability — `ReachabilityProviding`, `Reachability`, `PreviewReachability`
 
-`@Observable @MainActor` connectivity state, backed by `NWPathMonitor`. Bind from SwiftUI directly, or call the one-shot async API.
+`@Observable @MainActor` connectivity state, abstracted behind the
+`ReachabilityProviding` protocol so consumers can depend on the contract and
+inject either the production `Reachability` (backed by `NWPathMonitor`) or
+the in-memory `PreviewReachability` stub.
 
 ```swift
 @State private var reachability = Reachability()
@@ -77,7 +80,24 @@ var body: some View {
 let type = await Reachability.currentStatus()
 ```
 
-`ConnectionType` covers `.wifi`, `.cellular`, `.wired`, `.other`, `.unavailable`.
+Inject the protocol when you want testable / previewable views:
+
+```swift
+struct StatusView<R: ReachabilityProviding>: View {
+    @Bindable var reachability: R
+    var body: some View {
+        Text(reachability.isConnected ? "online" : "offline")
+    }
+}
+
+#Preview("Offline") {
+    StatusView(reachability: PreviewReachability(isConnected: false, connectionType: .unavailable))
+}
+```
+
+`ConnectionType` covers `.wifi`, `.cellular`, `.wired`, `.other`,
+`.unavailable`. `Reachability.ConnectionType` remains as a typealias so
+existing code compiles unchanged.
 
 ### Location — `LocationService`, `Coordinate`, `LocationAccuracy`, `LocationAuthorization`
 
