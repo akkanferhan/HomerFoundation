@@ -4,29 +4,21 @@ import Observation
 
 /// Observable connectivity state, backed by `NWPathMonitor`.
 ///
-/// `Reachability` is a `@MainActor` `@Observable` class designed for SwiftUI and
-/// UIKit. Create one instance per scope, call ``start()`` to begin observing,
-/// read ``isConnected`` and ``connectionType`` from any view layer, and call
+/// `Reachability` is the production conformer of ``ReachabilityProviding``.
+/// Create one instance per scope, call ``start()`` to begin observing, read
+/// ``isConnected`` and ``connectionType`` from any view layer, and call
 /// ``stop()`` to release the underlying monitor. For one-shot checks use
-/// ``currentStatus()`` instead.
+/// ``currentStatus()``; for SwiftUI previews and unit tests use
+/// ``PreviewReachability``.
 @Observable
 @MainActor
-public final class Reachability {
-    /// The kind of network interface currently providing connectivity.
-    public enum ConnectionType: Sendable, Equatable {
-        case wifi
-        case cellular
-        case wired
-        /// A satisfied path that does not advertise as Wi-Fi, cellular, or wired
-        /// (loopback, VPN-only paths, etc.).
-        case other
-        /// No usable connection.
-        case unavailable
-    }
+public final class Reachability: ReachabilityProviding {
+    /// Source-compatibility alias — ``ConnectionType`` was lifted to a
+    /// top-level type in 0.5.0 so the ``ReachabilityProviding`` protocol can
+    /// reference it without depending on this concrete conformer.
+    public typealias ConnectionType = HomerFoundation.ConnectionType
 
-    /// `true` when the system reports a satisfied network path.
     public private(set) var isConnected: Bool = false
-    /// The active interface type, or ``ConnectionType/unavailable``.
     public private(set) var connectionType: ConnectionType = .unavailable
 
     @ObservationIgnored private var monitor: NWPathMonitor?

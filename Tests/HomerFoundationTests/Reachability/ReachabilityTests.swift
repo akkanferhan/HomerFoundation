@@ -51,9 +51,21 @@ struct ReachabilityTests {
     @Test("currentStatus returns one of the known cases")
     func currentStatusReturnsKnownCase() async {
         let status = await Reachability.currentStatus()
-        let known: [Reachability.ConnectionType] = [
-            .wifi, .cellular, .wired, .other, .unavailable
-        ]
+        let known: [ConnectionType] = [.wifi, .cellular, .wired, .other, .unavailable]
         #expect(known.contains(status))
+    }
+
+    @Test("Reachability conforms to ReachabilityProviding")
+    func reachabilityConformsToProtocol() {
+        let provider: any ReachabilityProviding = Reachability()
+        #expect(!provider.isConnected)
+        #expect(provider.connectionType == .unavailable)
+    }
+
+    @Test("Reachability.ConnectionType remains a typealias for ConnectionType")
+    func connectionTypeSourceCompatibilityAlias() {
+        let nested: Reachability.ConnectionType = .wifi
+        let topLevel: ConnectionType = nested
+        #expect(topLevel == .wifi)
     }
 }
