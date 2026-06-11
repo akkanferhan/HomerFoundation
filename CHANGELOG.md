@@ -8,6 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- **`AsyncThrottler`** — the complement to `AsyncDebouncer`: guarantees
+  at most one execution per interval for streams that never go quiet
+  (scroll positions, location updates, progress reporting). Runs the
+  first call in a window immediately and the latest superseded call at
+  the window's end (leading + trailing-latest); a trailing run opens a
+  fresh window, so sustained bursts settle into one execution per
+  interval. `cancel()` drops the pending trailing run.
+- **`Sequence` concurrency helpers** — `asyncMap`, `asyncCompactMap`,
+  and `asyncForEach` (serial, order-preserving, error-stopping), plus
+  `concurrentMap` (task-group fan-out for independent I/O-bound work
+  that preserves input order and cancels remaining work on the first
+  error).
 - **Keychain storage family** — the secure sibling of the
   `UserDefaults` wrappers:
   - `KeychainStoring` — protocol abstraction over a secure key/value
