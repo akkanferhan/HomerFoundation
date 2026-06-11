@@ -132,4 +132,18 @@ struct StringExtensionsTests {
         #expect(" hello ".trimmedOrNil == "hello")
         #expect("hello".trimmedOrNil == "hello")
     }
+
+    @Test("digitsOnly keeps ASCII digits in order and drops everything else")
+    func digitsOnly() {
+        #expect("+90 (555) 123-45-67".digitsOnly == "905551234567")
+        #expect("a1b2c3".digitsOnly == "123")
+        #expect("no digits".digitsOnly == "")
+        #expect("".digitsOnly == "")
+    }
+
+    @Test("digitsOnly drops non-ASCII numerals and fraction characters")
+    func digitsOnlyNonASCII() {
+        #expect("٥5٥".digitsOnly == "5")
+        #expect("½2".digitsOnly == "2")
+    }
 }

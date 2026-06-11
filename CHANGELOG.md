@@ -6,6 +6,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- **`AsyncDebouncer`** — structured-concurrency debouncer `actor`, the
+  async counterpart to `DispatchQueue.debounce` for `@Observable` view
+  models (search-as-you-type, autosave). Each `call(_:)` cancels the
+  previously scheduled-but-not-yet-run operation, so only the latest
+  operation in a burst executes after the quiet interval; `cancel()`
+  drops the pending one without scheduling.
+- **`Collection.chunked(into:)`** — consecutive fixed-size chunks with a
+  shorter tail. Sizes below `1` clamp to `1` rather than trapping, so no
+  element is ever dropped.
+- **`URL.appendingQueryItems(_:)`** (array and sorted-dictionary
+  overloads) and **`URL.queryValue(for:)`** — query composition and
+  lookup that preserve the existing query and percent-encoding via
+  `URLComponents`.
+- **`TimeInterval.seconds/minutes/hours/days(_:)`** — unit factories so
+  call sites like `asyncAfter(delay: .minutes(5))` read in units instead
+  of bare second counts.
+- **`Date.isToday/isYesterday/isTomorrow(in:)`** and
+  **`Date.adding(_:_:in:)`** — calendar-aware day classification and
+  component arithmetic (DST-, month-length-, and leap-year-correct).
+- **`String.digitsOnly`** — keeps only ASCII `0`–`9`; the usual pre-clean
+  for phone, OTP, and card-number input. Pairs with `PhoneNumberFormatter`.
+- **`Encodable.asJSONString(encoder:)`** and **`Data.decoded(as:decoder:)`**
+  — complete the JSON bridge family alongside `asDictionary(encoder:)`,
+  `Data.asJSONDictionary()`, and `Dictionary.asJSONString()`.
+
 ### Fixed
 
 - `Encodable.asDictionary(encoder:)` now throws ``JSONError/notADictionary``

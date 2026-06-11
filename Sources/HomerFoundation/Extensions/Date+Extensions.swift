@@ -41,4 +41,35 @@ public extension Date {
     func isSameDay(as other: Date, in calendar: Calendar = .current) -> Bool {
         calendar.isDate(self, inSameDayAs: other)
     }
+
+    /// `true` when `self` falls on the current calendar day.
+    /// - Parameter calendar: The calendar used to determine day boundaries.
+    func isToday(in calendar: Calendar = .current) -> Bool {
+        calendar.isDateInToday(self)
+    }
+
+    /// `true` when `self` falls on the calendar day before today.
+    /// - Parameter calendar: The calendar used to determine day boundaries.
+    func isYesterday(in calendar: Calendar = .current) -> Bool {
+        calendar.isDateInYesterday(self)
+    }
+
+    /// `true` when `self` falls on the calendar day after today.
+    /// - Parameter calendar: The calendar used to determine day boundaries.
+    func isTomorrow(in calendar: Calendar = .current) -> Bool {
+        calendar.isDateInTomorrow(self)
+    }
+
+    /// Calendar-aware arithmetic — `date.adding(3, .day)`,
+    /// `date.adding(-1, .month)`. Unlike adding a raw `TimeInterval`,
+    /// this respects DST transitions, month lengths, and leap years.
+    /// - Parameters:
+    ///   - value: How many `component` units to add; negative subtracts.
+    ///   - component: The calendar unit to add (`.day`, `.month`, …).
+    ///   - calendar: The calendar performing the arithmetic.
+    /// - Returns: The shifted date, or `nil` when the calendar cannot
+    ///   represent the result.
+    func adding(_ value: Int, _ component: Calendar.Component, in calendar: Calendar = .current) -> Date? {
+        calendar.date(byAdding: component, value: value, to: self)
+    }
 }

@@ -50,4 +50,40 @@ struct DateExtensionsTests {
         #expect(morning.isSameDay(as: stillSameDay, in: calendar))
         #expect(!morning.isSameDay(as: nextDay, in: calendar))
     }
+
+    @Test("isToday / isYesterday / isTomorrow classify day offsets from now")
+    func dayClassification() {
+        let calendar = Calendar.current
+        let now = Date()
+        let yesterday = now.addingTimeInterval(-86_400)
+        let tomorrow = now.addingTimeInterval(86_400)
+
+        #expect(now.isToday(in: calendar))
+        #expect(!now.isYesterday(in: calendar))
+        #expect(!now.isTomorrow(in: calendar))
+        #expect(yesterday.isYesterday(in: calendar))
+        #expect(tomorrow.isTomorrow(in: calendar))
+    }
+
+    @Test("adding(_:_:) shifts by calendar components, including negatives")
+    func calendarAdding() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "UTC")!
+        let base = Date(timeIntervalSince1970: 1_700_000_000) // 2023-11-14 22:13:20 UTC
+
+        let nextDay = try #require(base.adding(1, .day, in: calendar))
+        #expect(nextDay.timeIntervalSince(base) == 86_400)
+
+        let previousMonth = try #require(base.adding(-1, .month, in: calendar))
+        #expect(previousMonth.string(withFormat: "yyyy-MM-dd", locale: Locale(identifier: "en_US_POSIX"), timeZone: calendar.timeZone) == "2023-10-14")
+    }
+
+    @Test("adding(_:_:) respects month-length clamping")
+    func calendarAddingClampsMonthEnd() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "UTC")!
+        let jan31 = try #require("2024-01-31".asDate(format: "yyyy-MM-dd", locale: Locale(identifier: "en_US_POSIX"), timeZone: calendar.timeZone))
+        let shifted = try #require(jan31.adding(1, .month, in: calendar))
+        #expect(shifted.string(withFormat: "yyyy-MM-dd", locale: Locale(identifier: "en_US_POSIX"), timeZone: calendar.timeZone) == "2024-02-29")
+    }
 }

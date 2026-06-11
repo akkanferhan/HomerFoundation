@@ -13,4 +13,15 @@ public extension Encodable {
         }
         return dictionary
     }
+
+    /// Encodes through `JSONEncoder` and decodes the bytes as a UTF-8
+    /// string. Completes the JSON bridge family alongside
+    /// ``asDictionary(encoder:)``, `Data.asJSONDictionary()`, and
+    /// `Dictionary.asJSONString()`. Rethrows the encoder's error.
+    /// - Parameter encoder: Customise key/date strategies; defaults to
+    ///   `JSONEncoder()`.
+    func asJSONString(encoder: JSONEncoder = JSONEncoder()) throws -> String {
+        let data = try encoder.encode(self)
+        return String(decoding: data, as: UTF8.self)
+    }
 }
