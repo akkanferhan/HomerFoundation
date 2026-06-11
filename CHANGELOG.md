@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Fixed
+
+- `Encodable.asDictionary(encoder:)` now throws ``JSONError/notADictionary``
+  when the encoded value is not a JSON object, as its doc comment always
+  promised. It previously threw `EncodingError.invalidValue`, which broke
+  error-handling consistency with `Data.asJSONDictionary()` — callers can
+  now catch `JSONError` uniformly across the library's JSON helpers.
+
 ## [0.5.0] — 2026-05-01
 
 ### Added
