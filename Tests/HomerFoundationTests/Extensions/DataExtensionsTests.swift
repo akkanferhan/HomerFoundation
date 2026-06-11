@@ -48,4 +48,31 @@ struct DataExtensionsTests {
         #expect(!ok)
         #expect(data == snapshot)
     }
+
+    @Test("decoded(as:) round-trips a Codable value from JSON bytes")
+    func decodedRoundTrip() throws {
+        struct User: Codable, Equatable { let id: Int; let name: String }
+        let data = Data(#"{"id": 7, "name": "alice"}"#.utf8)
+        let user: User = try data.decoded()
+        #expect(user == User(id: 7, name: "alice"))
+    }
+
+    @Test("decoded(as:) honours custom decoder configuration")
+    func decodedCustomDecoder() throws {
+        struct Item: Decodable { let createdAt: Date }
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .secondsSince1970
+        let data = Data(#"{"createdAt": 1000}"#.utf8)
+        let item = try data.decoded(as: Item.self, decoder: decoder)
+        #expect(item.createdAt == Date(timeIntervalSince1970: 1000))
+    }
+
+    @Test("decoded(as:) rethrows the decoder error for mismatched JSON")
+    func decodedThrows() {
+        struct User: Decodable { let id: Int }
+        let data = Data(#"{"id": "not-a-number"}"#.utf8)
+        #expect(throws: DecodingError.self) {
+            _ = try data.decoded(as: User.self)
+        }
+    }
 }

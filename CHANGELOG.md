@@ -6,6 +6,90 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.6.0] — 2026-06-11
+
+### Added
+
+- **`withTimeout(_:operation:)`** — bounds an `async` operation with a
+  deadline; throws `TimeoutError` (carrying the exceeded limit) when the
+  operation doesn't finish in time. The operation and a timer race in a
+  task group and the loser is cancelled; cancellation is cooperative, so
+  a timed-out operation stops promptly only if it honours task
+  cancellation. Errors thrown inside the limit propagate unchanged.
+- **`Result.asyncMap(_:)`** and **`Result(asyncCatching:)`** — async
+  counterparts of `map` and `Result(catching:)`, for async
+  post-processing chains and bridging async work into `Result`-shaped
+  storage or legacy completion APIs.
+- **`String.isValidE164PhoneNumber`** — strict E.164 validation (leading
+  `+`, non-zero first digit, 8–15 digits, no formatting characters);
+  pairs with `digitsOnly` for normalising user input and with
+  `isValidEmail` on the validation surface.
+
+- **`AsyncThrottler`** — the complement to `AsyncDebouncer`: guarantees
+  at most one execution per interval for streams that never go quiet
+  (scroll positions, location updates, progress reporting). Runs the
+  first call in a window immediately and the latest superseded call at
+  the window's end (leading + trailing-latest); a trailing run opens a
+  fresh window, so sustained bursts settle into one execution per
+  interval. `cancel()` drops the pending trailing run.
+- **`Sequence` concurrency helpers** — `asyncMap`, `asyncCompactMap`,
+  and `asyncForEach` (serial, order-preserving, error-stopping), plus
+  `concurrentMap` (task-group fan-out for independent I/O-bound work
+  that preserves input order and cancels remaining work on the first
+  error).
+- **Keychain storage family** — the secure sibling of the
+  `UserDefaults` wrappers:
+  - `KeychainStoring` — protocol abstraction over a secure key/value
+    store (`data(forKey:)` / `set` / `removeData`, plus UTF-8 `String`
+    conveniences), following the same inject-a-stub pattern as
+    `ReachabilityProviding`.
+  - `Keychain` — Security-framework conformer storing
+    generic-password items scoped by service (defaults to the bundle
+    identifier), with optional access group and a `Sendable`
+    `KeychainAccessibility` enum wrapping `kSecAttrAccessible*`.
+    Update-first writes so token refresh doesn't trip
+    `errSecDuplicateItem`.
+  - `InMemoryKeychain` — lock-guarded dictionary stub for tests and
+    previews; no entitlements, no residue.
+  - `@KeychainCodableValue` — property wrapper persisting any
+    `Codable` through `JSONEncoder`, mirroring
+    `UserDefaultsCodableValue`'s forgiving contract (default on
+    missing/corrupt, `nil` assignment removes, injectable store), with
+    an optional-shorthand init.
+
+- **`AsyncDebouncer`** — structured-concurrency debouncer `actor`, the
+  async counterpart to `DispatchQueue.debounce` for `@Observable` view
+  models (search-as-you-type, autosave). Each `call(_:)` cancels the
+  previously scheduled-but-not-yet-run operation, so only the latest
+  operation in a burst executes after the quiet interval; `cancel()`
+  drops the pending one without scheduling.
+- **`Collection.chunked(into:)`** — consecutive fixed-size chunks with a
+  shorter tail. Sizes below `1` clamp to `1` rather than trapping, so no
+  element is ever dropped.
+- **`URL.appendingQueryItems(_:)`** (array and sorted-dictionary
+  overloads) and **`URL.queryValue(for:)`** — query composition and
+  lookup that preserve the existing query and percent-encoding via
+  `URLComponents`.
+- **`TimeInterval.seconds/minutes/hours/days(_:)`** — unit factories so
+  call sites like `asyncAfter(delay: .minutes(5))` read in units instead
+  of bare second counts.
+- **`Date.isToday/isYesterday/isTomorrow(in:)`** and
+  **`Date.adding(_:_:in:)`** — calendar-aware day classification and
+  component arithmetic (DST-, month-length-, and leap-year-correct).
+- **`String.digitsOnly`** — keeps only ASCII `0`–`9`; the usual pre-clean
+  for phone, OTP, and card-number input. Pairs with `PhoneNumberFormatter`.
+- **`Encodable.asJSONString(encoder:)`** and **`Data.decoded(as:decoder:)`**
+  — complete the JSON bridge family alongside `asDictionary(encoder:)`,
+  `Data.asJSONDictionary()`, and `Dictionary.asJSONString()`.
+
+### Fixed
+
+- `Encodable.asDictionary(encoder:)` now throws ``JSONError/notADictionary``
+  when the encoded value is not a JSON object, as its doc comment always
+  promised. It previously threw `EncodingError.invalidValue`, which broke
+  error-handling consistency with `Data.asJSONDictionary()` — callers can
+  now catch `JSONError` uniformly across the library's JSON helpers.
+
 ## [0.5.0] — 2026-05-01
 
 ### Added

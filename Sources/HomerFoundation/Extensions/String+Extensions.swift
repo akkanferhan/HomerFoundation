@@ -11,6 +11,14 @@ public extension String {
         components(separatedBy: .whitespacesAndNewlines).joined()
     }
 
+    /// Only the ASCII digits `0`–`9`, in their original order; everything
+    /// else (separators, letters, `+`, non-ASCII numerals) is dropped.
+    /// The usual pre-clean for phone numbers, OTP codes, and card numbers
+    /// — pairs with ``PhoneNumberFormatter``.
+    var digitsOnly: String {
+        filter { $0.isASCII && $0.isNumber }
+    }
+
     /// Returns `nil` when the string is empty, otherwise returns `self`.
     /// Pairs with `??` to fall back to a default — `name.nilIfEmpty ?? "Anonymous"`.
     var nilIfEmpty: String? {
@@ -30,6 +38,16 @@ public extension String {
     /// the whole string, so substrings inside larger text do not match.
     var isValidEmail: Bool {
         let pattern = "^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}$"
+        return range(of: pattern, options: .regularExpression) != nil
+    }
+
+    /// `true` when the string is a strict E.164 phone number: a leading
+    /// `+`, a non-zero first digit, and 8–15 digits total. Formatting
+    /// characters are **not** tolerated — normalise user input first
+    /// (e.g. `"+" + raw.digitsOnly`) or use ``PhoneNumberFormatter``
+    /// for display masks. Anchored to the whole string.
+    var isValidE164PhoneNumber: Bool {
+        let pattern = "^\\+[1-9]\\d{7,14}$"
         return range(of: pattern, options: .regularExpression) != nil
     }
 

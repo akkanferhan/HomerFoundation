@@ -132,4 +132,38 @@ struct StringExtensionsTests {
         #expect(" hello ".trimmedOrNil == "hello")
         #expect("hello".trimmedOrNil == "hello")
     }
+
+    @Test("digitsOnly keeps ASCII digits in order and drops everything else")
+    func digitsOnly() {
+        #expect("+90 (555) 123-45-67".digitsOnly == "905551234567")
+        #expect("a1b2c3".digitsOnly == "123")
+        #expect("no digits".digitsOnly == "")
+        #expect("".digitsOnly == "")
+    }
+
+    @Test("digitsOnly drops non-ASCII numerals and fraction characters")
+    func digitsOnlyNonASCII() {
+        #expect("٥5٥".digitsOnly == "5")
+        #expect("½2".digitsOnly == "2")
+    }
+
+    @Test("isValidE164PhoneNumber accepts strict E.164 and rejects formatted input")
+    func isValidE164PhoneNumber() {
+        #expect("+905551234567".isValidE164PhoneNumber)
+        #expect("+15551234567".isValidE164PhoneNumber)
+
+        #expect(!"905551234567".isValidE164PhoneNumber, "Leading + is required")
+        #expect(!"+0555123456".isValidE164PhoneNumber, "First digit must be non-zero")
+        #expect(!"+90 555 123 45 67".isValidE164PhoneNumber, "Formatting characters are not tolerated")
+        #expect(!"+1234567".isValidE164PhoneNumber, "Too short (7 digits)")
+        #expect(!"+1234567890123456".isValidE164PhoneNumber, "Too long (16 digits)")
+        #expect(!"".isValidE164PhoneNumber)
+    }
+
+    @Test("digitsOnly normalisation feeds isValidE164PhoneNumber")
+    func e164NormalisationPipeline() {
+        let raw = "(555) 123-45-67"
+        let normalised = "+90" + raw.digitsOnly
+        #expect(normalised.isValidE164PhoneNumber)
+    }
 }
