@@ -20,6 +20,13 @@ enum Constants {
         static let defaultCategory = "default"
     }
 
+    /// Defaults used by the ``Keychain`` store.
+    enum Keychain {
+        /// `kSecAttrService` fallback used when the host bundle has no
+        /// `bundleIdentifier` (command-line tools, tests, …).
+        static let fallbackService = "HomerFoundation"
+    }
+
     /// Numeric thresholds used by the location bucketing logic.
     enum Location {
         /// Metres reported back by ``LocationAccuracy/poor``'s ``LocationAccuracy/clAccuracy``.
