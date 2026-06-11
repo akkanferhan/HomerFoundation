@@ -5,7 +5,7 @@ Modern Swift 6 / iOS 18 foundation library for the Homer suite of Apple apps. A 
 - **Swift tools:** 6.0 (`swiftLanguageModes: [.v6]`, strict concurrency)
 - **Platforms:** iOS 18+, macOS 14+
 - **Tests:** Swift Testing
-- **Status:** `0.5.0` — public API documented with DocC, 0 warnings
+- **Status:** `0.6.0` — public API documented with DocC, 0 warnings
 
 ## Installation
 
@@ -13,7 +13,7 @@ Swift Package Manager — add to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/ferhanakkan/HomerFoundation.git", from: "0.5.0")
+    .package(url: "https://github.com/akkanferhan/HomerFoundation.git", from: "0.6.0")
 ]
 ```
 
@@ -60,6 +60,30 @@ enum Settings {
 ```
 
 Both wrappers accept an injectable `store: UserDefaults` for tests and app groups.
+
+### Storage — `Keychain`, `KeychainStoring`, `InMemoryKeychain`, `KeychainCodableValue`
+
+The secure sibling of the `UserDefaults` wrappers, for secrets that must not
+live in plain-text defaults. `KeychainStoring` abstracts the store;
+`Keychain` is the Security-framework conformer (generic-password items,
+service-scoped, optional access group, `KeychainAccessibility` control);
+`InMemoryKeychain` is the test/preview stub.
+
+```swift
+struct SessionStore {
+    @KeychainCodableValue(key: "auth.session")
+    var session: AuthSession?
+}
+
+// Direct store access:
+let keychain = Keychain()
+keychain.set("token-abc", forKey: "access.token")
+let token = keychain.string(forKey: "access.token")
+
+// In tests — no entitlements, no residue:
+@KeychainCodableValue(key: "auth.session", store: InMemoryKeychain())
+var session: AuthSession?
+```
 
 ### Reachability — `ReachabilityProviding`, `Reachability`, `PreviewReachability`
 
@@ -123,6 +147,38 @@ let formatter = PhoneNumberFormatter(format: .international)
 formatter.format("905551234567") // "+90 (555) 123-4567"
 ```
 
+### Concurrency — `AsyncDebouncer`, `AsyncThrottler`, `withTimeout`
+
+Structured-concurrency rate-limiting and deadlines.
+
+`AsyncDebouncer` waits for a burst to go quiet, then runs the latest
+operation — search-as-you-type, autosave:
+
+```swift
+let debouncer = AsyncDebouncer(interval: .milliseconds(300))
+await debouncer.call { await performSearch(text) }
+```
+
+`AsyncThrottler` is the complement for streams that never go quiet
+(scroll, location, progress): the first call in a window runs
+immediately, the latest superseded call runs at the window's end, and
+sustained bursts settle into one execution per interval:
+
+```swift
+let throttler = AsyncThrottler(interval: .seconds(2))
+await throttler.call { await uploadLocation(coordinate) }
+```
+
+`withTimeout` bounds an await with a deadline; the loser of the
+operation-vs-timer race is cancelled (cooperatively) and the exceeded
+limit travels in `TimeoutError`:
+
+```swift
+let token = try await withTimeout(.seconds(5)) {
+    try await authProvider.refreshToken()
+}
+```
+
 ### Protocols — `AnyOptional`, `Describable`
 
 `AnyOptional` powers nil-handling utilities (used by `UserDefaultsValue`). `Describable` provides a default `description` derived from the type's runtime metadata.
@@ -135,20 +191,22 @@ Foundation-friendly utilities — all `Sendable`-clean and DocC-documented.
 |---|---|
 | `Array` | `safe` subscript |
 | `Bundle` | `appVersion`, `buildNumber`, `displayName`, `versionAndBuild` |
-| `Collection` | `isNotEmpty` |
+| `Collection` | `isNotEmpty`, `chunked(into:)` |
 | `Comparable` | `clamped(to:)` |
-| `Data` | `asJSONDictionary()`, `append(_:encoding:)` |
-| `Date` | `millisecondsSince1970`, `string(withFormat:locale:timeZone:)`, `isInPast`, `isInFuture`, `startOfDay(in:)`, `isSameDay(as:in:)` |
+| `Data` | `asJSONDictionary()`, `decoded(as:decoder:)`, `append(_:encoding:)` |
+| `Date` | `millisecondsSince1970`, `string(withFormat:locale:timeZone:)`, `isInPast`, `isInFuture`, `startOfDay(in:)`, `isSameDay(as:in:)`, `isToday/isYesterday/isTomorrow(in:)`, `adding(_:_:in:)` |
 | `Dictionary<String, Any>` | `asJSONString()` |
 | `DispatchQueue` | `safeAsync { … }` (re-entrant main hop), `debounce`, `isMainQueue` |
 | `Double` | `asInt`, `asCGFloat`, `asFloat`, `asString`, `rounded(toPlaces:)`, `zeroOmitted(decimals:)` |
-| `Encodable` | `asDictionary(encoder:)` |
+| `Encodable` | `asDictionary(encoder:)`, `asJSONString(encoder:)` |
 | `Int` | `asCGFloat`, `asFloat`, `asDouble`, `asString` |
 | `Optional` | `orEmpty`, `orZero`, `orFalse`, `isNilOrEmpty`, `isNotNilOrEmpty` |
-| `Result` | `value`, `error`, `isSuccess`, `isFailure` |
-| `Sequence` | `uniqued()`, `uniqued(on:)` |
-| `String` / `Substring` | `isValidEmail`, `parsedWords`, `wordCount`, `asISO8601Date`, `asDate(format:)`, `asDouble`, `asURL`, `whitespaceTrimmed`, `removingWhitespaces`, `nilIfEmpty`, `trimmedOrNil`, `withTurkishTransliteration`, integer subscript |
+| `Result` | `value`, `error`, `isSuccess`, `isFailure`, `asyncMap(_:)`, `init(asyncCatching:)` |
+| `Sequence` | `uniqued()`, `uniqued(on:)`, `asyncMap`, `asyncCompactMap`, `asyncForEach`, `concurrentMap` |
+| `String` / `Substring` | `isValidEmail`, `isValidE164PhoneNumber`, `digitsOnly`, `parsedWords`, `wordCount`, `asISO8601Date`, `asDate(format:)`, `asDouble`, `asURL`, `whitespaceTrimmed`, `removingWhitespaces`, `nilIfEmpty`, `trimmedOrNil`, `withTurkishTransliteration`, integer subscript |
 | `Thread` | `threadName`, `queueName`, `printCurrent()` |
+| `TimeInterval` | `.seconds/.minutes/.hours/.days(_:)` unit factories |
+| `URL` | `appendingQueryItems(_:)`, `queryValue(for:)` |
 | `JSONError` | shared error type for the JSON helpers |
 
 The error-handling convention across the library:
