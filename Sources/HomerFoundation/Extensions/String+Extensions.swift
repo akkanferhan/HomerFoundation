@@ -11,6 +11,14 @@ public extension String {
         components(separatedBy: .whitespacesAndNewlines).joined()
     }
 
+    /// Only the ASCII digits `0`–`9`, in their original order; everything
+    /// else (separators, letters, `+`, non-ASCII numerals) is dropped.
+    /// The usual pre-clean for phone numbers, OTP codes, and card numbers
+    /// — pairs with ``PhoneNumberFormatter``.
+    var digitsOnly: String {
+        filter { $0.isASCII && $0.isNumber }
+    }
+
     /// Returns `nil` when the string is empty, otherwise returns `self`.
     /// Pairs with `??` to fall back to a default — `name.nilIfEmpty ?? "Anonymous"`.
     var nilIfEmpty: String? {

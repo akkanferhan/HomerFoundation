@@ -12,6 +12,19 @@ public extension Data {
         return dictionary
     }
 
+    /// Decodes the bytes as JSON into `type`. The inverse of
+    /// `Encodable.asJSONString(encoder:)`; the type usually infers from
+    /// context — `let user: User = try data.decoded()`. Rethrows the
+    /// decoder's error.
+    /// - Parameters:
+    ///   - type: The `Decodable` type to produce. Defaults to the
+    ///     contextual type.
+    ///   - decoder: Customise key/date strategies; defaults to
+    ///     `JSONDecoder()`.
+    func decoded<T: Decodable>(as type: T.Type = T.self, decoder: JSONDecoder = JSONDecoder()) throws -> T {
+        try decoder.decode(T.self, from: self)
+    }
+
     /// Appends `string` encoded with `encoding`. Returns `false` and leaves the
     /// receiver untouched when the string cannot be represented in the chosen
     /// encoding (e.g. non-ASCII content with `.ascii`); returns `true` on

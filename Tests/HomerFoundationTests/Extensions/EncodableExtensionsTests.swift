@@ -29,6 +29,28 @@ struct EncodableExtensionsTests {
         let dict = try item.asDictionary(encoder: encoder)
         #expect(dict["createdAt"] as? Double == 1000)
     }
+
+    @Test("asJSONString round-trips through Data.decoded")
+    func asJSONStringRoundTrip() throws {
+        let user = EncodableUser(id: 7, name: "alice")
+        let json = try user.asJSONString()
+        struct DecodedUser: Decodable, Equatable { let id: Int; let name: String }
+        let decoded: DecodedUser = try Data(json.utf8).decoded()
+        #expect(decoded == DecodedUser(id: 7, name: "alice"))
+    }
+
+    @Test("asJSONString honours custom encoder configuration")
+    func asJSONStringCustomEncoder() throws {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
+        let json = try EncodableUser(id: 1, name: "bart").asJSONString(encoder: encoder)
+        #expect(json == #"{"id":1,"name":"bart"}"#)
+    }
+
+    @Test("asJSONString encodes non-object top-level values too")
+    func asJSONStringNonObject() throws {
+        #expect(try [1, 2, 3].asJSONString() == "[1,2,3]")
+    }
 }
 
 // MARK: - Helpers
