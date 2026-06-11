@@ -12,10 +12,10 @@ struct EncodableExtensionsTests {
         #expect(dict["name"] as? String == "alice")
     }
 
-    @Test("asDictionary throws when encoded value is not a JSON object")
+    @Test("asDictionary throws JSONError.notADictionary when encoded value is not a JSON object")
     func asDictionaryThrowsForNonObject() {
         let array = [1, 2, 3]
-        #expect(throws: EncodingError.self) {
+        #expect(throws: JSONError.notADictionary) {
             _ = try array.asDictionary()
         }
     }
