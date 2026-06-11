@@ -8,6 +8,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- **`withTimeout(_:operation:)`** — bounds an `async` operation with a
+  deadline; throws `TimeoutError` (carrying the exceeded limit) when the
+  operation doesn't finish in time. The operation and a timer race in a
+  task group and the loser is cancelled; cancellation is cooperative, so
+  a timed-out operation stops promptly only if it honours task
+  cancellation. Errors thrown inside the limit propagate unchanged.
+- **`Result.asyncMap(_:)`** and **`Result(asyncCatching:)`** — async
+  counterparts of `map` and `Result(catching:)`, for async
+  post-processing chains and bridging async work into `Result`-shaped
+  storage or legacy completion APIs.
+- **`String.isValidE164PhoneNumber`** — strict E.164 validation (leading
+  `+`, non-zero first digit, 8–15 digits, no formatting characters);
+  pairs with `digitsOnly` for normalising user input and with
+  `isValidEmail` on the validation surface.
+
 - **`AsyncThrottler`** — the complement to `AsyncDebouncer`: guarantees
   at most one execution per interval for streams that never go quiet
   (scroll positions, location updates, progress reporting). Runs the

@@ -29,6 +29,29 @@ struct ResultExtensionsTests {
         #expect(success.isSuccess != success.isFailure)
         #expect(failure.isSuccess != failure.isFailure)
     }
+
+    @Test("asyncMap transforms success and passes failure through")
+    func asyncMapBehaviour() async {
+        let success: Result<Int, ResultSampleError> = .success(21)
+        let mapped = await success.asyncMap { $0 * 2 }
+        #expect(mapped.value == 42)
+
+        let failure: Result<Int, ResultSampleError> = .failure(ResultSampleError(code: 7))
+        let untouched = await failure.asyncMap { $0 * 2 }
+        #expect(untouched.error == ResultSampleError(code: 7))
+    }
+
+    @Test("init(asyncCatching:) captures the value of a successful body")
+    func asyncCatchingSuccess() async {
+        let result = await Result(asyncCatching: { 42 })
+        #expect(result.value == 42)
+    }
+
+    @Test("init(asyncCatching:) captures the thrown error")
+    func asyncCatchingFailure() async {
+        let result: Result<Int, Error> = await Result(asyncCatching: { throw ResultSampleError(code: 9) })
+        #expect(result.error as? ResultSampleError == ResultSampleError(code: 9))
+    }
 }
 
 // MARK: - Helpers
