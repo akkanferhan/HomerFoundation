@@ -41,6 +41,16 @@ public extension String {
         return range(of: pattern, options: .regularExpression) != nil
     }
 
+    /// `true` when the string is a strict E.164 phone number: a leading
+    /// `+`, a non-zero first digit, and 8–15 digits total. Formatting
+    /// characters are **not** tolerated — normalise user input first
+    /// (e.g. `"+" + raw.digitsOnly`) or use ``PhoneNumberFormatter``
+    /// for display masks. Anchored to the whole string.
+    var isValidE164PhoneNumber: Bool {
+        let pattern = "^\\+[1-9]\\d{7,14}$"
+        return range(of: pattern, options: .regularExpression) != nil
+    }
+
     /// Words split on any whitespace (spaces, tabs, newlines). Consecutive
     /// whitespace runs collapse to a single separator. Use ``wordCount`` for
     /// the count.
