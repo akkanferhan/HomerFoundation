@@ -8,6 +8,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- **Keychain storage family** — the secure sibling of the
+  `UserDefaults` wrappers:
+  - `KeychainStoring` — protocol abstraction over a secure key/value
+    store (`data(forKey:)` / `set` / `removeData`, plus UTF-8 `String`
+    conveniences), following the same inject-a-stub pattern as
+    `ReachabilityProviding`.
+  - `Keychain` — Security-framework conformer storing
+    generic-password items scoped by service (defaults to the bundle
+    identifier), with optional access group and a `Sendable`
+    `KeychainAccessibility` enum wrapping `kSecAttrAccessible*`.
+    Update-first writes so token refresh doesn't trip
+    `errSecDuplicateItem`.
+  - `InMemoryKeychain` — lock-guarded dictionary stub for tests and
+    previews; no entitlements, no residue.
+  - `@KeychainCodableValue` — property wrapper persisting any
+    `Codable` through `JSONEncoder`, mirroring
+    `UserDefaultsCodableValue`'s forgiving contract (default on
+    missing/corrupt, `nil` assignment removes, injectable store), with
+    an optional-shorthand init.
+
 - **`AsyncDebouncer`** — structured-concurrency debouncer `actor`, the
   async counterpart to `DispatchQueue.debounce` for `@Observable` view
   models (search-as-you-type, autosave). Each `call(_:)` cancels the
